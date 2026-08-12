@@ -7,18 +7,24 @@ export default async function (req) {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json();
-    const imageUrl = body?.image_url;
-    if (!imageUrl || typeof imageUrl !== 'string' || imageUrl.length > 2000) {
-      return Response.json({ error: 'A valid image_url is required' }, { status: 400 });
+    let imageUrls = body?.image_urls;
+    if (imageUrls && !Array.isArray(imageUrls)) imageUrls = [imageUrls];
+    if (!imageUrls && body?.image_url) imageUrls = [body.image_url];
+    if (!Array.isArray(imageUrls) || imageUrls.length === 0 ||
+        !imageUrls.every((u) => typeof u === 'string' && u.length > 0 && u.length < 2000)) {
+      return Response.json({ error: 'One or more valid image_urls are required' }, { status: 400 });
     }
+    if (imageUrls.length > 8) imageUrls = imageUrls.slice(0, 8);
 
+    const oneOrMore = imageUrls.length === 1 ? 'this photo' : 'these ' + imageUrls.length + ' photos';
     const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt:
-        "You are a pharmacology assistant. Look at this photo of a medication package, bottle, blister pack or label. Identify the medication and fill in every field you can. " +
+        "You are a pharmacology assistant. Look at " + oneOrMore + " of a medication package, bottle, blister pack or label. " +
+        "There may be several photos showing different parts of the same medication (front, back, side panel, insert). Combine information from ALL of them to fill in every field as completely and accurately as possible. " +
         "Use the visible label text first; supplement with well-established general knowledge about that medication for purpose, typical frequency, common side effects, warnings and storage. " +
-        "If a field truly cannot be determined, return an empty string (or empty list). Keep dose as strength per unit (e.g. '500 mg'). Frequency should be plain language (e.g. 'Twice daily'). " +
-        "If the image does not show a medication, set is_medication to false.",
-      file_urls: [imageUrl],
+        "If a field truly cannot be determined from any photo, return an empty string (or empty list). Keep dose as strength per unit (e.g. '500 mg'). Frequency should be plain language (e.g. 'Twice daily'). " +
+        "If none of the images show a medication, set is_medication to false.",
+      file_urls: imageUrls,
       response_json_schema: {
         type: 'object',
         properties: {
