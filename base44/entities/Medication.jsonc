@@ -1,0 +1,66 @@
+{
+  "name": "Medication",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Brand or product name"
+    },
+    "generic_name": {
+      "type": "string"
+    },
+    "dose": {
+      "type": "string",
+      "description": "Strength per unit, e.g. 500 mg"
+    },
+    "form": {
+      "type": "string",
+      "description": "Tablet, capsule, syrup, etc."
+    },
+    "frequency": {
+      "type": "string",
+      "description": "How often it is taken"
+    },
+    "route": {
+      "type": "string",
+      "description": "Oral, topical, injection, etc."
+    },
+    "quantity": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string",
+      "description": "What it is used for"
+    },
+    "side_effects": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "storage": {
+      "type": "string"
+    },
+    "manufacturer": {
+      "type": "string"
+    },
+    "expiration_date": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "image_url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}
