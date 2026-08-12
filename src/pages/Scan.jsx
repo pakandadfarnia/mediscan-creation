@@ -6,6 +6,7 @@ import CameraCapture from "@/components/med/CameraCapture";
 import ConfirmForm from "@/components/med/ConfirmForm";
 import SummaryTable from "@/components/med/SummaryTable";
 import AllergyWarnings from "@/components/med/AllergyWarnings";
+import InteractionWarnings from "@/components/med/InteractionWarnings";
 import { checkAllergies } from "@/../base44/shared/allergyCheck";
 import { Plus, X, Camera, Upload, Check, Loader2 } from "lucide-react";
 
@@ -108,6 +109,13 @@ export default function Scan() {
             )}
           </div>
         )}
+
+        <div className="mt-6">
+          <h3 className="mb-3 text-sm font-medium uppercase tracking-wider text-stone-500">
+            OTC &amp; supplement cross-check
+          </h3>
+          <InteractionWarnings meds={meds} />
+        </div>
         <div className="mt-7 flex flex-wrap gap-3">
           <button
             onClick={() => { setMeds([]); resetCapture(); }}

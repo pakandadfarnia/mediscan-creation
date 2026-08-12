@@ -2,11 +2,25 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Input } from "@/components/ui/input";
-import { Search, Pill, Trash2 } from "lucide-react";
+import { Search, Pill, ShoppingCart, Leaf, Trash2 } from "lucide-react";
+
+const BADGE = {
+  prescription: { cls: "bg-indigo-100 text-indigo-700", label: "Rx", icon: Pill },
+  otc: { cls: "bg-amber-100 text-amber-700", label: "OTC", icon: ShoppingCart },
+  supplement: { cls: "bg-emerald-100 text-emerald-700", label: "Supplement", icon: Leaf },
+};
+
+const FILTERS = [
+  { value: "all", label: "All" },
+  { value: "prescription", label: "Prescription" },
+  { value: "otc", label: "OTC" },
+  { value: "supplement", label: "Supplements" },
+];
 
 export default function Library() {
   const [meds, setMeds] = useState(null);
   const [q, setQ] = useState("");
+  const [filter, setFilter] = useState("all");
 
   const load = async () => setMeds(await base44.entities.Medication.list("-created_date"));
   useEffect(() => { load(); }, []);
@@ -16,16 +30,39 @@ export default function Library() {
     load();
   };
 
-  const filtered = (meds || []).filter((m) =>
-    `${m.name} ${m.generic_name || ""}`.toLowerCase().includes(q.toLowerCase())
-  );
+  const filtered = (meds || []).filter((m) => {
+    const matchesText = `${m.name} ${m.generic_name || ""}`.toLowerCase().includes(q.toLowerCase());
+    const matchesCat = filter === "all" || (m.category || "prescription") === filter;
+    return matchesText && matchesCat;
+  });
+
+  const counts = (meds || []).reduce((acc, m) => {
+    const c = m.category || "prescription";
+    acc[c] = (acc[c] || 0) + 1;
+    return acc;
+  }, {});
 
   return (
     <div>
       <h1 className="font-heading text-3xl font-semibold tracking-tight">Your medications</h1>
-      <p className="mt-1 text-sm text-stone-500">Everything you've scanned, in one table.</p>
+      <p className="mt-1 text-sm text-stone-500">Everything you've scanned — prescriptions, OTC, and supplements together.</p>
 
-      <div className="relative mt-6">
+      <div className="mt-6 flex flex-wrap gap-2">
+        {FILTERS.map((f) => (
+          <button
+            key={f.value}
+            onClick={() => setFilter(f.value)}
+            className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+              filter === f.value ? "bg-stone-900 text-white" : "border border-stone-200 text-stone-600 hover:bg-stone-100"
+            }`}
+          >
+            {f.label}
+            {f.value !== "all" && counts[f.value] ? ` ${counts[f.value]}` : ""}
+          </button>
+        ))}
+      </div>
+
+      <div className="relative mt-4">
         <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
         <Input
           value={q}
@@ -52,11 +89,12 @@ export default function Library() {
           <table className="w-full text-left text-sm">
             <thead className="bg-stone-50 text-xs uppercase tracking-wider text-stone-500">
               <tr>
-                <th className="px-4 py-3 font-medium">Name</th>
-                <th className="px-4 py-3 font-medium">Dose</th>
-                <th className="hidden px-4 py-3 font-medium sm:table-cell">Frequency</th>
-                <th className="hidden px-4 py-3 font-medium md:table-cell">Used for</th>
-                <th className="px-4 py-3" />
+              <th className="px-4 py-3 font-medium">Name</th>
+              <th className="hidden px-4 py-3 font-medium sm:table-cell">Type</th>
+              <th className="px-4 py-3 font-medium">Dose</th>
+              <th className="hidden px-4 py-3 font-medium sm:table-cell">Frequency</th>
+              <th className="hidden px-4 py-3 font-medium md:table-cell">Used for</th>
+              <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody>
@@ -67,6 +105,19 @@ export default function Library() {
                       {m.name}
                     </Link>
                     {m.generic_name && <div className="text-xs text-stone-400">{m.generic_name}</div>}
+                  </td>
+                  <td className="hidden px-4 py-3 sm:table-cell">
+                    {(() => {
+                      const cat = m.category || "prescription";
+                      const b = BADGE[cat] || BADGE.prescription;
+                      const Icon = b.icon;
+                      return (
+                        <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${b.cls}`}>
+                          <Icon className="h-3 w-3" />
+                          {b.label}
+                        </span>
+                      );
+                    })()}
                   </td>
                   <td className="px-4 py-3 text-stone-600">{m.dose || "—"}</td>
                   <td className="hidden px-4 py-3 text-stone-600 sm:table-cell">{m.frequency || "—"}</td>

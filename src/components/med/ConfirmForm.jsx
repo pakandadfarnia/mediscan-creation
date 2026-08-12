@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Image } from "@/components/ui/image";
 import AllergyWarnings from "./AllergyWarnings";
+import CategoryPicker from "./CategoryPicker";
 
 const FIELDS = [
   { key: "name", label: "Medication name", type: "text", required: true },
@@ -66,6 +67,10 @@ export default function ConfirmForm({ data, imageUrl, onConfirm, onRescan, aller
           />
         </div>
       )}
+
+      <div className="mt-6">
+        <CategoryPicker value={form.category || "prescription"} onChange={(v) => set("category", v)} />
+      </div>
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {FIELDS.map(({ key, label, type }) => (

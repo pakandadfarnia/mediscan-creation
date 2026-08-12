@@ -18,13 +18,18 @@ export default function ScanCard({ onFile, busy, status }) {
         {busy ? <Loader2 className="h-7 w-7 animate-spin" /> : <Camera className="h-7 w-7" />}
       </div>
       <h2 className="font-heading text-2xl font-semibold tracking-tight">
-        {busy ? status : "Scan a medication"}
+        {busy ? status : "Scan any medication"}
       </h2>
       <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-stone-500">
         {busy
           ? "Hang tight while we read the label."
-          : "Take a photo of the box, bottle or blister pack and we'll pull the details into a table."}
+          : "Snap prescriptions, OTC pain relievers, cold medicine, vitamins, or herbal supplements — we'll log and cross-check them all."}
       </p>
+      {!busy && (
+        <p className="mx-auto mt-3 max-w-sm text-xs text-emerald-600">
+          Don't forget OTC pills and supplements — they often interact with prescriptions.
+        </p>
+      )}
 
       {!busy && (
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">

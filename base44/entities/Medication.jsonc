@@ -6,6 +6,16 @@
       "type": "string",
       "description": "Brand or product name"
     },
+    "category": {
+      "type": "string",
+      "enum": [
+        "prescription",
+        "otc",
+        "supplement"
+      ],
+      "default": "prescription",
+      "description": "prescription, over-the-counter (otc), or herbal/dietary supplement"
+    },
     "generic_name": {
       "type": "string"
     },

@@ -24,6 +24,7 @@ export default async function (req) {
         "Use the visible label text first; supplement with well-established general knowledge about that medication for purpose, typical frequency, common side effects, warnings and storage. " +
         "CRITICAL: read the 'inactive ingredients' (also called 'non-medicinal ingredients' or 'excipients') section carefully — these are the fillers, binders, dyes (e.g. Yellow No. 5 / tartrazine), preservatives, starches, lactose, gluten, gelatin, etc. List every inactive ingredient you can identify in inactive_ingredients. " +
         "If a field truly cannot be determined from any photo, return an empty string (or empty list). Keep dose as strength per unit (e.g. '500 mg'). Frequency should be plain language (e.g. 'Twice daily'). " +
+        "IMPORTANT: classify the item into 'category'. Use 'prescription' if it appears to be a pharmacy-dispensed Rx medicine (look for 'Rx only', an NDC with Rx, prescription number, or a drug usually requiring a prescription). Use 'otc' for over-the-counter medicines bought off the shelf (ibuprofen, acetaminophen, cold/allergy tablets, antacids, laxatives, etc.). Use 'supplement' for vitamins, minerals, herbals and dietary supplements (look for 'Supplement Facts', 'herbal', botanical names, or brands like Nature Made, Centrum, St. John's Wort, melatonin). When in doubt, prefer 'otc' for a labelled drug and 'supplement' only for supplement-fact items. " +
         "If none of the images show a medication, set is_medication to false.",
       file_urls: imageUrls,
       response_json_schema: {
@@ -31,6 +32,7 @@ export default async function (req) {
         properties: {
           is_medication: { type: 'boolean' },
           name: { type: 'string' },
+          category: { type: 'string', enum: ['prescription', 'otc', 'supplement'], description: 'prescription, over-the-counter, or herbal/dietary supplement' },
           generic_name: { type: 'string' },
           dose: { type: 'string' },
           form: { type: 'string' },
