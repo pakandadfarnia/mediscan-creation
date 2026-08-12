@@ -3,6 +3,7 @@ import React from "react";
 const ROWS = [
   ["Medication", "name"],
   ["Generic name", "generic_name"],
+  ["Active ingredients", "active_ingredients"],
   ["Dose", "dose"],
   ["Form", "form"],
   ["Frequency", "frequency"],

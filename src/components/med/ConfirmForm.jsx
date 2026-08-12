@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Image } from "@/components/ui/image";
 import AllergyWarnings from "./AllergyWarnings";
 import CategoryPicker from "./CategoryPicker";
+import DuplicateWarnings from "./DuplicateWarnings";
 
 const FIELDS = [
   { key: "name", label: "Medication name", type: "text", required: true },
@@ -21,12 +22,13 @@ const FIELDS = [
 ];
 
 const ARRAYS = [
+  { key: "active_ingredients", label: "Active ingredients (one per line — each component of a combo drug)" },
   { key: "inactive_ingredients", label: "Inactive ingredients (one per line)" },
   { key: "side_effects", label: "Side effects (one per line)" },
   { key: "warnings", label: "Warnings (one per line)" },
 ];
 
-export default function ConfirmForm({ data, imageUrl, onConfirm, onRescan, allergies }) {
+export default function ConfirmForm({ data, imageUrl, onConfirm, onRescan, allergies, others }) {
   const [form, setForm] = useState(() => {
     const f = { ...data };
     ARRAYS.forEach(({ key }) => {
@@ -64,6 +66,15 @@ export default function ConfirmForm({ data, imageUrl, onConfirm, onRescan, aller
           <AllergyWarnings
             med={{ ...data, inactive_ingredients: form.inactive_ingredients ? form.inactive_ingredients.split("\n").map((s) => s.trim()).filter(Boolean) : [] }}
             allergies={allergies}
+          />
+        </div>
+      )}
+
+      {others?.length > 0 && (
+        <div className="mt-5">
+          <DuplicateWarnings
+            med={{ ...data, active_ingredients: form.active_ingredients ? form.active_ingredients.split("\n").map((s) => s.trim()).filter(Boolean) : [] }}
+            others={others}
           />
         </div>
       )}

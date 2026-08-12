@@ -7,6 +7,8 @@ import ConfirmForm from "@/components/med/ConfirmForm";
 import SummaryTable from "@/components/med/SummaryTable";
 import AllergyWarnings from "@/components/med/AllergyWarnings";
 import InteractionWarnings from "@/components/med/InteractionWarnings";
+import DuplicateWarnings from "@/components/med/DuplicateWarnings";
+import { checkDuplicates } from "@/../base44/shared/duplicateCheck";
 import { checkAllergies } from "@/../base44/shared/allergyCheck";
 import { Plus, X, Camera, Upload, Check, Loader2 } from "lucide-react";
 
@@ -25,8 +27,12 @@ export default function Scan() {
   const [addingCam, setAddingCam] = useState(false);
   const [saving, setSaving] = useState(false);
   const [allergies, setAllergies] = useState([]);
+  const [library, setLibrary] = useState([]);
 
-  useEffect(() => { base44.entities.Allergy.list().then(setAllergies).catch(() => {}); }, []);
+  useEffect(() => {
+    base44.entities.Allergy.list().then(setAllergies).catch(() => {});
+    base44.entities.Medication.list("-created_date").then(setLibrary).catch(() => {});
+  }, []);
 
   const addPhoto = (file) => setPhotos((p) => [...p, { file, preview: URL.createObjectURL(file) }]);
   const removePhoto = (i) =>
@@ -116,6 +122,22 @@ export default function Scan() {
           </h3>
           <InteractionWarnings meds={meds} />
         </div>
+
+        <div className="mt-6">
+          <h3 className="mb-3 text-sm font-medium uppercase tracking-wider text-stone-500">
+            Duplicate active ingredient check
+          </h3>
+          <div className="space-y-3">
+            {meds.map((m, i) => (
+              <DuplicateWarnings key={i} med={m} others={[...library, ...meds.filter((x) => x !== m)]} />
+            ))}
+            {!meds.some((m) => checkDuplicates(m, [...library, ...meds.filter((x) => x !== m)]).length) && (
+              <p className="rounded-2xl bg-emerald-50 px-5 py-4 text-sm text-emerald-700">
+                No duplicate active ingredients detected. ✓
+              </p>
+            )}
+          </div>
+        </div>
         <div className="mt-7 flex flex-wrap gap-3">
           <button
             onClick={() => { setMeds([]); resetCapture(); }}
@@ -143,6 +165,7 @@ export default function Scan() {
         data={extracted}
         imageUrl={extractedImage}
         allergies={allergies}
+        others={[...library, ...meds]}
         onConfirm={onConfirm}
         onRescan={resetCapture}
       />

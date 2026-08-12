@@ -19,6 +19,13 @@
     "generic_name": {
       "type": "string"
     },
+    "active_ingredients": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Active medicinal ingredients, including each component of combination drugs (e.g. oxycodone, acetaminophen)"
+    },
     "dose": {
       "type": "string",
       "description": "Strength per unit, e.g. 500 mg"
