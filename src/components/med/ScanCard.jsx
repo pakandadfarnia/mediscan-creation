@@ -1,9 +1,10 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Camera, Upload, Loader2 } from "lucide-react";
+import CameraCapture from "./CameraCapture";
 
 export default function ScanCard({ onFile, busy, status }) {
-  const cameraRef = useRef(null);
   const fileRef = useRef(null);
+  const [camOpen, setCamOpen] = useState(false);
 
   const pick = (e) => {
     const file = e.target.files?.[0];
@@ -28,7 +29,7 @@ export default function ScanCard({ onFile, busy, status }) {
       {!busy && (
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <button
-            onClick={() => cameraRef.current?.click()}
+            onClick={() => setCamOpen(true)}
             className="inline-flex items-center justify-center gap-2 rounded-full bg-stone-900 px-6 py-3 text-sm font-medium text-white transition-transform hover:scale-[1.02] active:scale-[0.98]"
           >
             <Camera className="h-4 w-4" /> Take photo
@@ -42,8 +43,16 @@ export default function ScanCard({ onFile, busy, status }) {
         </div>
       )}
 
-      <input ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={pick} />
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={pick} />
+      {camOpen && (
+        <CameraCapture
+          onCapture={(f) => {
+            setCamOpen(false);
+            onFile(f);
+          }}
+          onClose={() => setCamOpen(false)}
+        />
+      )}
     </div>
   );
 }
