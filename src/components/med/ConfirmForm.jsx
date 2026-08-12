@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Image } from "@/components/ui/image";
+import AllergyWarnings from "./AllergyWarnings";
 
 const FIELDS = [
   { key: "name", label: "Medication name", type: "text", required: true },
@@ -19,11 +20,12 @@ const FIELDS = [
 ];
 
 const ARRAYS = [
+  { key: "inactive_ingredients", label: "Inactive ingredients (one per line)" },
   { key: "side_effects", label: "Side effects (one per line)" },
   { key: "warnings", label: "Warnings (one per line)" },
 ];
 
-export default function ConfirmForm({ data, imageUrl, onConfirm, onRescan }) {
+export default function ConfirmForm({ data, imageUrl, onConfirm, onRescan, allergies }) {
   const [form, setForm] = useState(() => {
     const f = { ...data };
     ARRAYS.forEach(({ key }) => {
@@ -54,6 +56,15 @@ export default function ConfirmForm({ data, imageUrl, onConfirm, onRescan }) {
 
       {imageUrl && (
         <Image src={imageUrl} className="mt-5 h-44 w-full rounded-2xl object-cover" fittingType="fill" />
+      )}
+
+      {allergies?.length > 0 && (
+        <div className="mt-5">
+          <AllergyWarnings
+            med={{ ...data, inactive_ingredients: form.inactive_ingredients ? form.inactive_ingredients.split("\n").map((s) => s.trim()).filter(Boolean) : [] }}
+            allergies={allergies}
+          />
+        </div>
       )}
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -16,6 +16,7 @@ import MedLayout from '@/components/med/Layout';
 import Scan from '@/pages/Scan';
 import Library from '@/pages/Library';
 import MedicationDetail from '@/pages/MedicationDetail';
+import Allergies from '@/pages/Allergies';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -52,6 +53,7 @@ const AuthenticatedApp = () => {
           <Route path="/" element={<Scan />} />
           <Route path="/library" element={<Library />} />
           <Route path="/medication" element={<MedicationDetail />} />
+          <Route path="/allergies" element={<Allergies />} />
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />

@@ -32,6 +32,13 @@
       "type": "string",
       "description": "What it is used for"
     },
+    "inactive_ingredients": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Fillers, binders, dyes, preservatives"
+    },
     "side_effects": {
       "type": "array",
       "items": {

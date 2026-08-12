@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import ScanCard from "@/components/med/ScanCard";
 import CameraCapture from "@/components/med/CameraCapture";
 import ConfirmForm from "@/components/med/ConfirmForm";
 import SummaryTable from "@/components/med/SummaryTable";
+import AllergyWarnings from "@/components/med/AllergyWarnings";
+import { checkAllergies } from "@/../base44/shared/allergyCheck";
 import { Plus, X, Camera, Upload, Check, Loader2 } from "lucide-react";
 
 const PHASE = { CAPTURE: "capture", CONFIRM: "confirm", SUMMARY: "summary" };
@@ -21,6 +23,9 @@ export default function Scan() {
   const [extractedImage, setExtractedImage] = useState("");
   const [addingCam, setAddingCam] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [allergies, setAllergies] = useState([]);
+
+  useEffect(() => { base44.entities.Allergy.list().then(setAllergies).catch(() => {}); }, []);
 
   const addPhoto = (file) => setPhotos((p) => [...p, { file, preview: URL.createObjectURL(file) }]);
   const removePhoto = (i) =>
@@ -89,6 +94,20 @@ export default function Scan() {
         <div className="mt-6">
           <SummaryTable meds={meds} />
         </div>
+
+        {allergies.length > 0 && (
+          <div className="mt-6 space-y-3">
+            <h3 className="text-sm font-medium uppercase tracking-wider text-stone-500">Allergy cross-check</h3>
+            {meds.map((m, i) => (
+              <AllergyWarnings key={i} med={m} allergies={allergies} />
+            ))}
+            {!meds.some((m) => checkAllergies(m, allergies).length) && (
+              <p className="rounded-2xl bg-emerald-50 px-5 py-4 text-sm text-emerald-700">
+                No inactive ingredients matched your recorded allergies. ✓
+              </p>
+            )}
+          </div>
+        )}
         <div className="mt-7 flex flex-wrap gap-3">
           <button
             onClick={() => { setMeds([]); resetCapture(); }}
@@ -115,6 +134,7 @@ export default function Scan() {
       <ConfirmForm
         data={extracted}
         imageUrl={extractedImage}
+        allergies={allergies}
         onConfirm={onConfirm}
         onRescan={resetCapture}
       />

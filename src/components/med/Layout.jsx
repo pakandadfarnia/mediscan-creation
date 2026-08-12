@@ -1,11 +1,12 @@
 import React from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { ScanLine, Library, LogOut } from "lucide-react";
+import { ScanLine, Library, ShieldAlert, LogOut } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
 const NAV = [
   { to: "/", label: "Scan", icon: ScanLine },
   { to: "/library", label: "Library", icon: Library },
+  { to: "/allergies", label: "Allergies", icon: ShieldAlert },
 ];
 
 export default function Layout() {

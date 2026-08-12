@@ -9,6 +9,7 @@ const ROWS = [
   ["Route", "route"],
   ["Quantity", "quantity"],
   ["Used for", "purpose"],
+  ["Inactive ingredients", "inactive_ingredients"],
   ["Storage", "storage"],
   ["Manufacturer", "manufacturer"],
   ["Expiration", "expiration_date"],
