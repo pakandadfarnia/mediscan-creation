@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Image } from "@/components/ui/image";
 import ScanCard from "@/components/med/ScanCard";
+import CameraCapture from "@/components/med/CameraCapture";
 import InfoTable from "@/components/med/InfoTable";
-import { Plus, X, Loader2, Sparkles } from "lucide-react";
+import { Plus, X, Camera, Upload, Loader2, Sparkles } from "lucide-react";
 
 export default function Scan() {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ export default function Scan() {
   const [result, setResult] = useState(null);
   const [imageUrls, setImageUrls] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [addingCam, setAddingCam] = useState(false);
 
   const addPhoto = (file) => {
     const preview = URL.createObjectURL(file);
@@ -98,14 +100,21 @@ export default function Scan() {
               </div>
             ))}
             <button
-              onClick={() => document.getElementById("add-more-cam")?.click()}
+              onClick={() => setAddingCam(true)}
               className="flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-stone-300 text-stone-400 hover:bg-stone-100"
             >
-              <Plus className="h-5 w-5" />
-              <span className="text-[11px]">Add photo</span>
+              <Camera className="h-5 w-5" />
+              <span className="text-[11px]">Take photo</span>
+            </button>
+            <button
+              onClick={() => document.getElementById("add-more-file")?.click()}
+              className="flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-stone-300 text-stone-400 hover:bg-stone-100"
+            >
+              <Upload className="h-5 w-5" />
+              <span className="text-[11px]">Upload</span>
             </button>
             <input
-              id="add-more-cam"
+              id="add-more-file"
               type="file"
               accept="image/*"
               className="hidden"
@@ -160,6 +169,13 @@ export default function Scan() {
             <InfoTable data={result} />
           </div>
         </div>
+      )}
+
+      {addingCam && (
+        <CameraCapture
+          onCapture={(f) => { setAddingCam(false); addPhoto(f); }}
+          onClose={() => setAddingCam(false)}
+        />
       )}
     </div>
   );
