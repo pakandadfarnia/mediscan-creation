@@ -10,7 +10,7 @@ import { ShieldAlert, Loader2, Check } from "lucide-react";
 const SEXES = ["male", "female", "other"];
 
 export default function Profile() {
-  const { t, lang, setLang } = useLang();
+  const { t, lang, setLang, textSize, setTextSize } = useLang();
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState({ name: "", sex: "", date_of_birth: "", height: "", weight: "", language: "en" });
   const [allergyCount, setAllergyCount] = useState(0);
@@ -111,6 +111,29 @@ export default function Profile() {
             ))}
           </select>
           <p className="mt-1.5 text-xs text-stone-400">{t("profile.langHint")}</p>
+        </div>
+
+        <div>
+          <Label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-stone-500">{t("profile.textSize")}</Label>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { v: "normal", label: t("a11y.normal") },
+              { v: "large", label: t("a11y.large") },
+              { v: "xlarge", label: t("a11y.xlarge") },
+            ].map((o) => (
+              <button
+                key={o.v}
+                type="button"
+                onClick={() => setTextSize(o.v)}
+                className={`rounded-full px-4 py-2 text-sm transition ${
+                  textSize === o.v ? "bg-stone-900 text-white" : "border border-stone-300 text-stone-600 hover:bg-stone-100"
+                }`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+          <p className="mt-1.5 text-xs text-stone-400">{t("profile.textSizeHint")}</p>
         </div>
 
         <div className="flex items-center gap-3 pt-1">

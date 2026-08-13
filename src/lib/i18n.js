@@ -149,6 +149,13 @@ const D = {
   "table.catOtc": { en: "OTC", es: "OTC", fr: "OTC", zh: "非处方", pt: "OTC", ar: "بدون وصفة" },
   "table.catSupp": { en: "Supplement", es: "Suplemento", fr: "Complément", zh: "补充剂", pt: "Suplemento", ar: "مكمل" },
   "table.notes": { en: "Notes", es: "Notas", fr: "Notes", zh: "备注", pt: "Notas", ar: "ملاحظات" },
+  "a11y.readAloud": { en: "Read aloud", es: "Leer en voz alta", fr: "Lire à voix haute", zh: "朗读", pt: "Ler em voz alta", ar: "قراءة بصوت" },
+  "a11y.stop": { en: "Stop", es: "Detener", fr: "Arrêter", zh: "停止", pt: "Parar", ar: "إيقاف" },
+  "a11y.normal": { en: "Normal", es: "Normal", fr: "Normal", zh: "标准", pt: "Normal", ar: "عادي" },
+  "a11y.large": { en: "Large", es: "Grande", fr: "Grand", zh: "大", pt: "Grande", ar: "كبير" },
+  "a11y.xlarge": { en: "Extra large", es: "Muy grande", fr: "Très grand", zh: "特大", pt: "Muito grande", ar: "كبير جدًا" },
+  "profile.textSize": { en: "Text size", es: "Tamaño del texto", fr: "Taille du texte", zh: "文字大小", pt: "Tamanho do texto", ar: "حجم النص" },
+  "profile.textSizeHint": { en: "Makes all the text bigger so it's easier to read.", es: "Hace todo el texto más grande para facilitar la lectura.", fr: "Agrandit tout le texte pour faciliter la lecture.", zh: "放大所有文字以便于阅读。", pt: "Aumenta todo o texto para facilitar a leitura.", ar: "يكبر كل النص لتسهيل القراءة." },
 
   "export.preparedFor": { en: "Prepared for", es: "Preparado para", fr: "Préparé pour", zh: "编制于", pt: "Preparado para", ar: "أُعدّ لـ" },
   "export.date": { en: "Date", es: "Fecha", fr: "Date", zh: "日期", pt: "Data", ar: "التاريخ" },

@@ -9,6 +9,8 @@ import SafetyPanel from "@/components/med/SafetyPanel";
 import { downloadMedicationsPdf } from "@/lib/exportMedications";
 import { useLang } from "@/lib/LanguageProvider";
 import { langName } from "@/lib/i18n";
+import ReadAloudButton from "@/components/med/ReadAloudButton";
+import { summarySpokenText } from "@/lib/spokenText";
 import { Plus, X, Camera, Upload, Check, Loader2, Download } from "lucide-react";
 
 const PHASE = { CAPTURE: "capture", CONFIRM: "confirm", SUMMARY: "summary" };
@@ -103,6 +105,10 @@ export default function Scan() {
         <p className="mt-1 text-sm text-stone-500">{t("scan.summaryDesc", { n: meds.length })}</p>
         <div className="mt-6">
           <SummaryTable meds={meds} />
+        </div>
+
+        <div className="mt-4">
+          <ReadAloudButton text={summarySpokenText(meds, t)} />
         </div>
 
         <div className="mt-6">

@@ -6,6 +6,8 @@ import { ArrowLeft } from "lucide-react";
 import InfoTable from "@/components/med/InfoTable";
 import SafetyPanel from "@/components/med/SafetyPanel";
 import { useLang } from "@/lib/LanguageProvider";
+import ReadAloudButton from "@/components/med/ReadAloudButton";
+import { medicationSpokenText } from "@/lib/spokenText";
 
 export default function MedicationDetail() {
   const { t } = useLang();
@@ -33,6 +35,10 @@ export default function MedicationDetail() {
       </Link>
       <h1 className="mt-4 font-heading text-3xl font-semibold tracking-tight">{med.name}</h1>
       {med.generic_name && <p className="mt-1 text-sm text-stone-500">{med.generic_name}</p>}
+
+      <div className="mt-3">
+        <ReadAloudButton text={medicationSpokenText(med, t)} />
+      </div>
 
       {med.image_url && (
         <Image src={med.image_url} className="mt-6 h-56 w-full rounded-2xl object-cover" fittingType="fill" />
