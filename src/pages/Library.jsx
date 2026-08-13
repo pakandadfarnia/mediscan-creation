@@ -3,21 +3,10 @@ import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Input } from "@/components/ui/input";
 import { Search, Pill, ShoppingCart, Leaf, Trash2 } from "lucide-react";
-
-const BADGE = {
-  prescription: { cls: "bg-indigo-100 text-indigo-700", label: "Rx", icon: Pill },
-  otc: { cls: "bg-amber-100 text-amber-700", label: "OTC", icon: ShoppingCart },
-  supplement: { cls: "bg-emerald-100 text-emerald-700", label: "Supplement", icon: Leaf },
-};
-
-const FILTERS = [
-  { value: "all", label: "All" },
-  { value: "prescription", label: "Prescription" },
-  { value: "otc", label: "OTC" },
-  { value: "supplement", label: "Supplements" },
-];
+import { useLang } from "@/lib/LanguageProvider";
 
 export default function Library() {
+  const { t } = useLang();
   const [meds, setMeds] = useState(null);
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState("all");
@@ -25,10 +14,20 @@ export default function Library() {
   const load = async () => setMeds(await base44.entities.Medication.list("-created_date"));
   useEffect(() => { load(); }, []);
 
-  const remove = async (id) => {
-    await base44.entities.Medication.delete(id);
-    load();
+  const remove = async (id) => { await base44.entities.Medication.delete(id); load(); };
+
+  const BADGE = {
+    prescription: { cls: "bg-indigo-100 text-indigo-700", icon: Pill, label: t("table.catRx") },
+    otc: { cls: "bg-amber-100 text-amber-700", icon: ShoppingCart, label: t("table.catOtc") },
+    supplement: { cls: "bg-emerald-100 text-emerald-700", icon: Leaf, label: t("table.catSupp") },
   };
+
+  const FILTERS = [
+    { value: "all", label: t("library.filterAll") },
+    { value: "prescription", label: t("library.filterRx") },
+    { value: "otc", label: t("library.filterOtc") },
+    { value: "supplement", label: t("library.filterSupp") },
+  ];
 
   const filtered = (meds || []).filter((m) => {
     const matchesText = `${m.name} ${m.generic_name || ""}`.toLowerCase().includes(q.toLowerCase());
@@ -44,8 +43,8 @@ export default function Library() {
 
   return (
     <div>
-      <h1 className="font-heading text-3xl font-semibold tracking-tight">Your medications</h1>
-      <p className="mt-1 text-sm text-stone-500">Everything you've scanned — prescriptions, OTC, and supplements together.</p>
+      <h1 className="font-heading text-3xl font-semibold tracking-tight">{t("library.title")}</h1>
+      <p className="mt-1 text-sm text-stone-500">{t("library.desc")}</p>
 
       <div className="mt-6 flex flex-wrap gap-2">
         {FILTERS.map((f) => (
@@ -67,19 +66,19 @@ export default function Library() {
         <Input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search by name"
+          placeholder={t("library.search")}
           className="h-12 rounded-full border-stone-200 bg-white pl-11"
         />
       </div>
 
-      {meds === null && <p className="mt-10 text-sm text-stone-400">Loading…</p>}
+      {meds === null && <p className="mt-10 text-sm text-stone-400">{t("common.loading")}</p>}
 
       {meds !== null && filtered.length === 0 && (
         <div className="mt-10 rounded-3xl border border-dashed border-stone-300 p-12 text-center">
           <Pill className="mx-auto h-8 w-8 text-stone-300" />
-          <p className="mt-4 text-sm text-stone-500">Nothing here yet — scan your first medication.</p>
+          <p className="mt-4 text-sm text-stone-500">{t("library.empty")}</p>
           <Link to="/" className="mt-4 inline-block rounded-full bg-stone-900 px-5 py-2.5 text-sm text-white">
-            Scan now
+            {t("library.scanNow")}
           </Link>
         </div>
       )}
@@ -89,12 +88,12 @@ export default function Library() {
           <table className="w-full text-left text-sm">
             <thead className="bg-stone-50 text-xs uppercase tracking-wider text-stone-500">
               <tr>
-              <th className="px-4 py-3 font-medium">Name</th>
-              <th className="hidden px-4 py-3 font-medium sm:table-cell">Type</th>
-              <th className="px-4 py-3 font-medium">Dose</th>
-              <th className="hidden px-4 py-3 font-medium sm:table-cell">Frequency</th>
-              <th className="hidden px-4 py-3 font-medium md:table-cell">Used for</th>
-              <th className="px-4 py-3" />
+                <th className="px-4 py-3 font-medium">{t("library.colName")}</th>
+                <th className="hidden px-4 py-3 font-medium sm:table-cell">{t("library.colType")}</th>
+                <th className="px-4 py-3 font-medium">{t("library.colDose")}</th>
+                <th className="hidden px-4 py-3 font-medium sm:table-cell">{t("library.colFreq")}</th>
+                <th className="hidden px-4 py-3 font-medium md:table-cell">{t("library.colUsed")}</th>
+                <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody>

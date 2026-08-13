@@ -17,6 +17,8 @@ import Scan from '@/pages/Scan';
 import Library from '@/pages/Library';
 import MedicationDetail from '@/pages/MedicationDetail';
 import Allergies from '@/pages/Allergies';
+import Profile from '@/pages/Profile';
+import { LanguageProvider } from '@/lib/LanguageProvider';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -54,6 +56,7 @@ const AuthenticatedApp = () => {
           <Route path="/library" element={<Library />} />
           <Route path="/medication" element={<MedicationDetail />} />
           <Route path="/allergies" element={<Allergies />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />
@@ -67,10 +70,12 @@ function App() {
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
+        <LanguageProvider>
         <Router>
           <ScrollToTop />
           <AuthenticatedApp />
         </Router>
+        </LanguageProvider>
         <Toaster />
       </QueryClientProvider>
     </AuthProvider>

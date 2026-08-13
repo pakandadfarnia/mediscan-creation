@@ -1,13 +1,14 @@
 import React from "react";
+import { useLang } from "@/lib/LanguageProvider";
 
 const COLS = [
-  { key: "name", label: "Medication" },
-  { key: "category", label: "Type", badge: true },
-  { key: "dose", label: "Dose" },
-  { key: "frequency", label: "Frequency" },
-  { key: "purpose", label: "Used for" },
-  { key: "side_effects", label: "Side effects", array: true },
-  { key: "warnings", label: "Warnings", array: true },
+  { key: "name", labelKey: "table.name" },
+  { key: "category", labelKey: "table.category", badge: true },
+  { key: "dose", labelKey: "table.dose" },
+  { key: "frequency", labelKey: "table.frequency" },
+  { key: "purpose", labelKey: "table.purpose" },
+  { key: "side_effects", labelKey: "table.sideEffects", array: true },
+  { key: "warnings", labelKey: "table.warnings", array: true },
 ];
 
 const BADGE = {
@@ -15,16 +16,17 @@ const BADGE = {
   otc: "bg-amber-100 text-amber-700",
   supplement: "bg-emerald-100 text-emerald-700",
 };
-const LABEL = { prescription: "Rx", otc: "OTC", supplement: "Supplement" };
+const CAT_KEY = { prescription: "table.catRx", otc: "table.catOtc", supplement: "table.catSupp" };
 
 export default function SummaryTable({ meds }) {
+  const { t } = useLang();
   return (
     <div className="overflow-x-auto rounded-2xl border border-stone-200 bg-white">
       <table className="w-full min-w-[760px] text-left text-sm">
         <thead className="bg-stone-50 text-xs uppercase tracking-wider text-stone-500">
           <tr>
             {COLS.map((c) => (
-              <th key={c.key} className="px-4 py-3 font-medium">{c.label}</th>
+              <th key={c.key} className="px-4 py-3 font-medium">{t(c.labelKey)}</th>
             ))}
           </tr>
         </thead>
@@ -38,7 +40,7 @@ export default function SummaryTable({ meds }) {
                   return (
                     <td key={c.key} className="px-4 py-3">
                       <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${BADGE[cat] || "bg-stone-100 text-stone-600"}`}>
-                        {LABEL[cat] || cat}
+                        {t(CAT_KEY[cat] || "table.catRx")}
                       </span>
                     </td>
                   );

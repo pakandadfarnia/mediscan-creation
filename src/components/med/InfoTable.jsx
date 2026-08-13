@@ -1,37 +1,39 @@
 import React from "react";
+import { useLang } from "@/lib/LanguageProvider";
 
 const ROWS = [
-  ["Medication", "name"],
-  ["Generic name", "generic_name"],
-  ["Active ingredients", "active_ingredients"],
-  ["Dose", "dose"],
-  ["Form", "form"],
-  ["Frequency", "frequency"],
-  ["Route", "route"],
-  ["Quantity", "quantity"],
-  ["Used for", "purpose"],
-  ["Inactive ingredients", "inactive_ingredients"],
-  ["Storage", "storage"],
-  ["Manufacturer", "manufacturer"],
-  ["Expiration", "expiration_date"],
-  ["Side effects", "side_effects"],
-  ["Warnings", "warnings"],
-  ["Notes", "notes"],
+  ["table.name", "name"],
+  ["table.generic", "generic_name"],
+  ["table.active", "active_ingredients"],
+  ["table.dose", "dose"],
+  ["table.form", "form"],
+  ["table.frequency", "frequency"],
+  ["table.route", "route"],
+  ["table.quantity", "quantity"],
+  ["table.purpose", "purpose"],
+  ["table.inactive", "inactive_ingredients"],
+  ["table.storage", "storage"],
+  ["table.manufacturer", "manufacturer"],
+  ["table.expiration", "expiration_date"],
+  ["table.sideEffects", "side_effects"],
+  ["table.warnings", "warnings"],
+  ["table.notes", "notes"],
 ];
 
 export default function InfoTable({ data }) {
+  const { t } = useLang();
   return (
     <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
       <table className="w-full text-left text-sm">
         <tbody>
-          {ROWS.map(([label, key]) => {
+          {ROWS.map(([labelKey, key]) => {
             const raw = data?.[key];
             const value = Array.isArray(raw) ? raw.join(" · ") : raw;
             if (!value) return null;
             return (
               <tr key={key} className="border-b border-stone-100 last:border-0">
                 <th className="w-40 bg-stone-50/70 px-4 py-3 align-top text-xs font-medium uppercase tracking-wider text-stone-500">
-                  {label}
+                  {t(labelKey)}
                 </th>
                 <td className="px-4 py-3 align-top text-stone-800">{value}</td>
               </tr>

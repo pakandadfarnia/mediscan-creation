@@ -5,19 +5,19 @@ import ScanCard from "@/components/med/ScanCard";
 import CameraCapture from "@/components/med/CameraCapture";
 import ConfirmForm from "@/components/med/ConfirmForm";
 import SummaryTable from "@/components/med/SummaryTable";
-import AllergyWarnings from "@/components/med/AllergyWarnings";
-import DuplicateWarnings from "@/components/med/DuplicateWarnings";
-import InteractionCheck from "@/components/med/InteractionCheck";
-import { checkDuplicates } from "@/../base44/shared/duplicateCheck";
-import { checkAllergies } from "@/../base44/shared/allergyCheck";
-import { Plus, X, Camera, Upload, Check, Loader2 } from "lucide-react";
+import SafetyPanel from "@/components/med/SafetyPanel";
+import { downloadMedicationsPdf } from "@/lib/exportMedications";
+import { useLang } from "@/lib/LanguageProvider";
+import { langName } from "@/lib/i18n";
+import { Plus, X, Camera, Upload, Check, Loader2, Download } from "lucide-react";
 
 const PHASE = { CAPTURE: "capture", CONFIRM: "confirm", SUMMARY: "summary" };
 
 export default function Scan() {
+  const { t, lang } = useLang();
   const navigate = useNavigate();
   const [phase, setPhase] = useState(PHASE.CAPTURE);
-  const [meds, setMeds] = useState([]); // confirmed medications
+  const [meds, setMeds] = useState([]);
   const [photos, setPhotos] = useState([]);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("");
@@ -28,10 +28,12 @@ export default function Scan() {
   const [saving, setSaving] = useState(false);
   const [allergies, setAllergies] = useState([]);
   const [library, setLibrary] = useState([]);
+  const [profileName, setProfileName] = useState("");
 
   useEffect(() => {
     base44.entities.Allergy.list().then(setAllergies).catch(() => {});
     base44.entities.Medication.list("-created_date").then(setLibrary).catch(() => {});
+    base44.entities.Profile.list().then((list) => setProfileName((list && list[0]?.name) || "")).catch(() => {});
   }, []);
 
   const addPhoto = (file) => setPhotos((p) => [...p, { file, preview: URL.createObjectURL(file) }]);
@@ -42,24 +44,24 @@ export default function Scan() {
     setError("");
     setBusy(true);
     try {
-      setStatus("Uploading photos…");
+      setStatus(t("scan.uploading"));
       const urls = [];
       for (const ph of photos) {
         const { file_url } = await base44.integrations.Core.UploadFile({ file: ph.file });
         urls.push(file_url);
       }
       setExtractedImage(urls[0] || "");
-      setStatus("Reading the labels…");
+      setStatus(t("scan.reading"));
       const res = await base44.functions.invoke("analyzeMedication", { image_urls: urls });
       const data = res.data?.result;
       if (!data || data.is_medication === false) {
-        setError("We couldn't find a medication in those photos. Try a clearer shot of the label.");
+        setError(t("scan.notMed"));
       } else {
         setExtracted(data);
         setPhase(PHASE.CONFIRM);
       }
     } catch (e) {
-      setError("Something went wrong reading those photos. Please try again.");
+      setError(t("scan.error"));
     }
     setBusy(false);
   };
@@ -81,76 +83,63 @@ export default function Scan() {
 
   const saveAll = async () => {
     setSaving(true);
-    const created = [];
     for (const m of meds) {
       const { is_medication, ...fields } = m;
-      created.push(await base44.entities.Medication.create(fields));
+      await base44.entities.Medication.create(fields);
     }
     setSaving(false);
     navigate("/library");
   };
 
-  // ---- SUMMARY ----
+  const exportPdf = async (forLang) => {
+    const file = forLang === "en" ? "medications_en.pdf" : `medications_${forLang}.pdf`;
+    await downloadMedicationsPdf(meds, forLang, profileName, file);
+  };
+
   if (phase === PHASE.SUMMARY) {
     return (
       <div>
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">Your medications</h1>
-        <p className="mt-1 text-sm text-stone-500">
-          {meds.length} medication{meds.length > 1 ? "s" : ""} captured. Review the table, then save to your library.
-        </p>
+        <h1 className="font-heading text-3xl font-semibold tracking-tight">{t("scan.summaryTitle")}</h1>
+        <p className="mt-1 text-sm text-stone-500">{t("scan.summaryDesc", { n: meds.length })}</p>
         <div className="mt-6">
           <SummaryTable meds={meds} />
         </div>
 
-        {allergies.length > 0 && (
-          <div className="mt-6 space-y-3">
-            <h3 className="text-sm font-medium uppercase tracking-wider text-stone-500">Allergy cross-check</h3>
-            {meds.map((m, i) => (
-              <AllergyWarnings key={i} med={m} allergies={allergies} />
-            ))}
-            {!meds.some((m) => checkAllergies(m, allergies).length) && (
-              <p className="rounded-2xl bg-emerald-50 px-5 py-4 text-sm text-emerald-700">
-                No inactive ingredients matched your recorded allergies. ✓
-              </p>
-            )}
-          </div>
-        )}
-
         <div className="mt-6">
-          <h3 className="mb-3 text-sm font-medium uppercase tracking-wider text-stone-500">
-            Drug &amp; food interactions
-          </h3>
+          <h3 className="mb-3 text-sm font-medium uppercase tracking-wider text-stone-500">{t("scan.safetySection")}</h3>
           <div className="space-y-3">
             {meds.map((m, i) => (
-              <div key={i}>
-                <p className="mb-2 text-sm font-medium text-stone-700">{m.name}</p>
-                <InteractionCheck med={m} others={[...library, ...meds.filter((x) => x !== m)]} />
-              </div>
+              <SafetyPanel key={i} med={m} others={[...library, ...meds.filter((x) => x !== m)]} allergies={allergies} />
             ))}
           </div>
         </div>
 
         <div className="mt-6">
-          <h3 className="mb-3 text-sm font-medium uppercase tracking-wider text-stone-500">
-            Duplicate active ingredient check
-          </h3>
-          <div className="space-y-3">
-            {meds.map((m, i) => (
-              <DuplicateWarnings key={i} med={m} others={[...library, ...meds.filter((x) => x !== m)]} />
-            ))}
-            {!meds.some((m) => checkDuplicates(m, [...library, ...meds.filter((x) => x !== m)]).length) && (
-              <p className="rounded-2xl bg-emerald-50 px-5 py-4 text-sm text-emerald-700">
-                No duplicate active ingredients detected. ✓
-              </p>
+          <h3 className="mb-3 text-sm font-medium uppercase tracking-wider text-stone-500">{t("scan.exportTitle")}</h3>
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => exportPdf(lang)}
+              className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white"
+            >
+              <Download className="h-4 w-4" /> {t("export.downloadPref", { lang: langName(lang) })}
+            </button>
+            {lang !== "en" && (
+              <button
+                onClick={() => exportPdf("en")}
+                className="inline-flex items-center gap-2 rounded-full border border-stone-300 px-5 py-2.5 text-sm font-medium text-stone-700 hover:bg-stone-100"
+              >
+                <Download className="h-4 w-4" /> {t("export.downloadEn")}
+              </button>
             )}
           </div>
         </div>
+
         <div className="mt-7 flex flex-wrap gap-3">
           <button
             onClick={() => { setMeds([]); resetCapture(); }}
             className="rounded-full border border-stone-300 px-5 py-2.5 text-sm font-medium text-stone-700 hover:bg-stone-100"
           >
-            Start over
+            {t("scan.startOver")}
           </button>
           <button
             onClick={saveAll}
@@ -158,14 +147,13 @@ export default function Scan() {
             className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white disabled:opacity-60"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-            {saving ? "Saving…" : `Save ${meds.length} to library`}
+            {saving ? t("common.loading") : t("scan.saveN", { n: meds.length })}
           </button>
         </div>
       </div>
     );
   }
 
-  // ---- CONFIRM ----
   if (phase === PHASE.CONFIRM) {
     return (
       <ConfirmForm
@@ -179,15 +167,14 @@ export default function Scan() {
     );
   }
 
-  // ---- CAPTURE ----
   return (
     <div>
       {meds.length > 0 && (
         <div className="mb-5 flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
           <Check className="h-4 w-4" />
-          {meds.length} medication{meds.length > 1 ? "s" : ""} added so far
+          {t("scan.addedSoFar", { n: meds.length })}
           <button onClick={() => setPhase(PHASE.SUMMARY)} className="ml-auto font-medium underline">
-            View table
+            {t("scan.viewTable")}
           </button>
         </div>
       )}
@@ -196,9 +183,7 @@ export default function Scan() {
 
       {photos.length > 0 && !busy && (
         <div className="mt-6">
-          <p className="mb-3 text-sm font-medium text-stone-600">
-            {photos.length} photo{photos.length > 1 ? "s" : ""} ready — add more if the label has more detail.
-          </p>
+          <p className="mb-3 text-sm font-medium text-stone-600">{t("scan.photosReady", { n: photos.length })}</p>
           <div className="flex flex-wrap gap-3">
             {photos.map((p, i) => (
               <div key={i} className="relative h-24 w-24 overflow-hidden rounded-xl border border-stone-200">
@@ -209,16 +194,16 @@ export default function Scan() {
               </div>
             ))}
             <button onClick={() => setAddingCam(true)} className="flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-stone-300 text-stone-400 hover:bg-stone-100">
-              <Camera className="h-5 w-5" /><span className="text-[11px]">Take photo</span>
+              <Camera className="h-5 w-5" /><span className="text-[11px]">{t("scan.takePhoto")}</span>
             </button>
             <button onClick={() => document.getElementById("add-more-file")?.click()} className="flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-stone-300 text-stone-400 hover:bg-stone-100">
-              <Upload className="h-5 w-5" /><span className="text-[11px]">Upload</span>
+              <Upload className="h-5 w-5" /><span className="text-[11px]">{t("scan.upload")}</span>
             </button>
             <input id="add-more-file" type="file" accept="image/*" className="hidden"
-              onChange={(e) => { const f = e.target.files?.[0]; e.target.value=""; if (f) addPhoto(f); }} />
+              onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) addPhoto(f); }} />
           </div>
           <button onClick={analyze} className="mt-6 inline-flex items-center gap-2 rounded-full bg-stone-900 px-6 py-3 text-sm font-medium text-white">
-            <Plus className="h-4 w-4" /> Analyze {photos.length} photo{photos.length > 1 ? "s" : ""}
+            <Plus className="h-4 w-4" /> {t("scan.analyze", { n: photos.length })}
           </button>
         </div>
       )}
