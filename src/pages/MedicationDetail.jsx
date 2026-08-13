@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import InfoTable from "@/components/med/InfoTable";
 import AllergyWarnings from "@/components/med/AllergyWarnings";
 import DuplicateWarnings from "@/components/med/DuplicateWarnings";
+import InteractionCheck from "@/components/med/InteractionCheck";
 
 export default function MedicationDetail() {
   const id = new URLSearchParams(window.location.search).get("id");
@@ -40,6 +41,12 @@ export default function MedicationDetail() {
       <div className="mt-6 space-y-4">
         <DuplicateWarnings med={med} others={library} />
         <AllergyWarnings med={med} allergies={allergies} />
+      </div>
+      <div className="mt-6">
+        <h3 className="mb-3 text-sm font-medium uppercase tracking-wider text-stone-500">
+          Drug &amp; food interactions
+        </h3>
+        <InteractionCheck med={med} others={library} />
       </div>
       <div className="mt-6">
         <InfoTable data={med} />

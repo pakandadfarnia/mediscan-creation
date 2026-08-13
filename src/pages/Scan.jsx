@@ -6,8 +6,8 @@ import CameraCapture from "@/components/med/CameraCapture";
 import ConfirmForm from "@/components/med/ConfirmForm";
 import SummaryTable from "@/components/med/SummaryTable";
 import AllergyWarnings from "@/components/med/AllergyWarnings";
-import InteractionWarnings from "@/components/med/InteractionWarnings";
 import DuplicateWarnings from "@/components/med/DuplicateWarnings";
+import InteractionCheck from "@/components/med/InteractionCheck";
 import { checkDuplicates } from "@/../base44/shared/duplicateCheck";
 import { checkAllergies } from "@/../base44/shared/allergyCheck";
 import { Plus, X, Camera, Upload, Check, Loader2 } from "lucide-react";
@@ -118,9 +118,16 @@ export default function Scan() {
 
         <div className="mt-6">
           <h3 className="mb-3 text-sm font-medium uppercase tracking-wider text-stone-500">
-            OTC &amp; supplement cross-check
+            Drug &amp; food interactions
           </h3>
-          <InteractionWarnings meds={meds} />
+          <div className="space-y-3">
+            {meds.map((m, i) => (
+              <div key={i}>
+                <p className="mb-2 text-sm font-medium text-stone-700">{m.name}</p>
+                <InteractionCheck med={m} others={[...library, ...meds.filter((x) => x !== m)]} />
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="mt-6">
