@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { Profile as ProfileEntity, Allergy } from "@/lib/localDb";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLang } from "@/lib/LanguageProvider";
@@ -18,7 +18,7 @@ export default function Profile() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    base44.entities.Profile.list().then((list) => {
+    ProfileEntity.list().then((list) => {
       const p = list && list[0];
       setProfile(p || {});
       setForm({
@@ -30,7 +30,7 @@ export default function Profile() {
         language: p?.language || "en",
       });
     }).catch(() => setProfile({}));
-    base44.entities.Allergy.list().then((l) => setAllergyCount(l.length)).catch(() => {});
+    Allergy.list().then((l) => setAllergyCount(l.length)).catch(() => {});
   }, []);
 
   const set = (k, v) => setForm((s) => ({ ...s, [k]: v }));
@@ -41,9 +41,9 @@ export default function Profile() {
     setSaved(false);
     try {
       if (profile?.id) {
-        await base44.entities.Profile.update(profile.id, form);
+        await ProfileEntity.update(profile.id, form);
       } else {
-        const created = await base44.entities.Profile.create(form);
+        const created = await ProfileEntity.create(form);
         setProfile(created);
       }
       setLang(form.language);

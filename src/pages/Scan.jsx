@@ -11,6 +11,7 @@ import { useLang } from "@/lib/LanguageProvider";
 import { langName } from "@/lib/i18n";
 import ReadAloudButton from "@/components/med/ReadAloudButton";
 import { summarySpokenText } from "@/lib/spokenText";
+import { Medication, Allergy, Profile } from "@/lib/localDb";
 import { Plus, X, Camera, Upload, Check, Loader2, Download } from "lucide-react";
 
 const PHASE = { CAPTURE: "capture", CONFIRM: "confirm", SUMMARY: "summary" };
@@ -33,9 +34,9 @@ export default function Scan() {
   const [profileName, setProfileName] = useState("");
 
   useEffect(() => {
-    base44.entities.Allergy.list().then(setAllergies).catch(() => {});
-    base44.entities.Medication.list("-created_date").then(setLibrary).catch(() => {});
-    base44.entities.Profile.list().then((list) => setProfileName((list && list[0]?.name) || "")).catch(() => {});
+    Allergy.list().then(setAllergies).catch(() => {});
+    Medication.list("-created_date").then(setLibrary).catch(() => {});
+    Profile.list().then((list) => setProfileName((list && list[0]?.name) || "")).catch(() => {});
   }, []);
 
   const addPhoto = (file) => setPhotos((p) => [...p, { file, preview: URL.createObjectURL(file) }]);
@@ -87,7 +88,7 @@ export default function Scan() {
     setSaving(true);
     for (const m of meds) {
       const { is_medication, ...fields } = m;
-      await base44.entities.Medication.create(fields);
+      await Medication.create(fields);
     }
     setSaving(false);
     navigate("/library");

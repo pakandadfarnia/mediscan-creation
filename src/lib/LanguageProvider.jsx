@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { Profile as ProfileEntity } from "@/lib/localDb";
 import { LANGS, translate, isRTL } from "@/lib/i18n";
 
 const LanguageContext = createContext(null);
@@ -10,7 +10,7 @@ export function LanguageProvider({ children }) {
 
   // Load the user's saved language preference once they're authenticated.
   useEffect(() => {
-    base44.entities.Profile.list()
+    ProfileEntity.list()
       .then((list) => {
         const p = list && list[0];
         if (p && p.language) {
@@ -37,10 +37,11 @@ export function LanguageProvider({ children }) {
     setLangState(next);
     localStorage.setItem("medilens_lang", next);
     // Persist to the user's profile so it survives devices.
-    base44.entities.Profile.list()
+    ProfileEntity.list()
       .then((list) => {
         const p = list && list[0];
-        if (p) base44.entities.Profile.update(p.id, { language: next });
+        if (p) ProfileEntity.update(p.id, { language: next });
+        else ProfileEntity.create({ language: next });
       })
       .catch(() => {});
   };

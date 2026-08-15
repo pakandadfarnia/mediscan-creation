@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { Medication } from "@/lib/localDb";
 import { Input } from "@/components/ui/input";
 import { Search, Pill, ShoppingCart, Leaf, Trash2 } from "lucide-react";
 import { useLang } from "@/lib/LanguageProvider";
@@ -11,10 +11,10 @@ export default function Library() {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState("all");
 
-  const load = async () => setMeds(await base44.entities.Medication.list("-created_date"));
+  const load = async () => setMeds(await Medication.list("-created_date"));
   useEffect(() => { load(); }, []);
 
-  const remove = async (id) => { await base44.entities.Medication.delete(id); load(); };
+  const remove = async (id) => { await Medication.delete(id); load(); };
 
   const BADGE = {
     prescription: { cls: "bg-indigo-100 text-indigo-700", icon: Pill, label: t("table.catRx") },

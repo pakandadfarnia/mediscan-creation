@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { Medication, Allergy } from "@/lib/localDb";
 import { Image } from "@/components/ui/image";
 import { ArrowLeft } from "lucide-react";
 import InfoTable from "@/components/med/InfoTable";
@@ -18,9 +18,9 @@ export default function MedicationDetail() {
 
   useEffect(() => {
     if (!id) return setMed(null);
-    base44.entities.Medication.get(id).then(setMed).catch(() => setMed(null));
-    base44.entities.Allergy.list().then(setAllergies).catch(() => {});
-    base44.entities.Medication.list("-created_date").then((list) => {
+    Medication.get(id).then(setMed).catch(() => setMed(null));
+    Allergy.list().then(setAllergies).catch(() => {});
+    Medication.list("-created_date").then((list) => {
       setLibrary(list.filter((m) => m.id !== id));
     }).catch(() => {});
   }, [id]);

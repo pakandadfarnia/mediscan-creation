@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { Allergy } from "@/lib/localDb";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, ShieldAlert } from "lucide-react";
@@ -17,18 +17,18 @@ export default function Allergies() {
     { v: "other", label: t("allergies.catOther") },
   ];
 
-  const load = async () => setList(await base44.entities.Allergy.list());
+  const load = async () => setList(await Allergy.list());
   useEffect(() => { load(); }, []);
 
   const add = async (e) => {
     e.preventDefault();
     if (!name.trim()) return;
-    await base44.entities.Allergy.create({ name: name.trim(), category: cat });
+    await Allergy.create({ name: name.trim(), category: cat });
     setName("");
     load();
   };
 
-  const remove = async (id) => { await base44.entities.Allergy.delete(id); load(); };
+  const remove = async (id) => { await Allergy.delete(id); load(); };
 
   return (
     <div>
