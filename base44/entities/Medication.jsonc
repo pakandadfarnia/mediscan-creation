@@ -82,6 +82,66 @@
     },
     "image_url": {
       "type": "string"
+    },
+    "allergy_warnings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "allergen": {
+            "type": "string"
+          },
+          "ingredient": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Saved matches between this medication's inactive ingredients and the user's allergies"
+    },
+    "drug_interactions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "other_med": {
+            "type": "string"
+          },
+          "ingredient": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "danger",
+              "caution"
+            ]
+          }
+        }
+      }
+    },
+    "food_interactions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "food": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "danger",
+              "caution"
+            ]
+          }
+        }
+      }
     }
   },
   "required": [

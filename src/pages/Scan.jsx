@@ -12,6 +12,7 @@ import { langName } from "@/lib/i18n";
 import ReadAloudButton from "@/components/med/ReadAloudButton";
 import { summarySpokenText } from "@/lib/spokenText";
 import { Medication, Allergy, Profile } from "@/lib/localDb";
+import { checkAllergies } from "@/../base44/shared/allergyCheck";
 import { Plus, X, Camera, Upload, Check, Loader2, Download } from "lucide-react";
 
 const PHASE = { CAPTURE: "capture", CONFIRM: "confirm", SUMMARY: "summary" };
@@ -86,9 +87,22 @@ export default function Scan() {
 
   const saveAll = async () => {
     setSaving(true);
+    const allOthers = [...library, ...meds];
     for (const m of meds) {
       const { is_medication, ...fields } = m;
-      await Medication.create(fields);
+      const others = allOthers.filter((x) => x !== m);
+      const allergyWarnings = checkAllergies(m, allergies);
+      let drug_interactions = [];
+      let food_interactions = [];
+      try {
+        const res = await base44.functions.invoke("checkInteractions", { medication: m, others });
+        const r = res.data?.result || res.data;
+        drug_interactions = r?.drug_drug || [];
+        food_interactions = r?.drug_food || [];
+      } catch {
+        // offline or failed — store empty; can be refreshed later
+      }
+      await Medication.create({ ...fields, allergy_warnings: allergyWarnings, drug_interactions, food_interactions });
     }
     setSaving(false);
     navigate("/library");

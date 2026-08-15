@@ -32,8 +32,29 @@ export function medicationSpokenText(med, t) {
   return parts.join(". ");
 }
 
+// Reads only the columns shown in the summary table (name, category, dose,
+// frequency, purpose, side effects, warnings) — nothing more.
 export function summarySpokenText(meds, t) {
   if (!meds || !meds.length) return t("scan.summaryTitle");
   const intro = `${t("scan.summaryTitle")}. ${t("scan.summaryDesc", { n: meds.length })}`;
-  return intro + ". " + meds.map((m) => medicationSpokenText(m, t)).join(". ");
+  const row = (m) => {
+    const parts = [];
+    const add = (k, v) => {
+      if (v == null || v === "") return;
+      const val = Array.isArray(v) ? v.filter(Boolean).join(", ") : v;
+      if (val) parts.push(`${t(k)}: ${val}`);
+    };
+    add("table.name", m.name);
+    if (m.category) {
+      const catKey = m.category === "prescription" ? "table.catRx" : m.category === "otc" ? "table.catOtc" : "table.catSupp";
+      parts.push(`${t("table.category")}: ${t(catKey)}`);
+    }
+    add("table.dose", m.dose);
+    add("table.frequency", m.frequency);
+    add("table.purpose", m.purpose);
+    add("table.sideEffects", m.side_effects);
+    add("table.warnings", m.warnings);
+    return parts.join(". ");
+  };
+  return intro + ". " + meds.map(row).join(". ");
 }

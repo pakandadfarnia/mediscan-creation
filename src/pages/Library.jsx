@@ -1,26 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Medication } from "@/lib/localDb";
+import { Medication, Allergy } from "@/lib/localDb";
 import { Input } from "@/components/ui/input";
-import { Search, Pill, ShoppingCart, Leaf, Trash2 } from "lucide-react";
+import { Search, Pill } from "lucide-react";
 import { useLang } from "@/lib/LanguageProvider";
+import LibraryCard from "@/components/med/LibraryCard";
 
 export default function Library() {
   const { t } = useLang();
   const [meds, setMeds] = useState(null);
+  const [allergies, setAllergies] = useState([]);
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState("all");
 
-  const load = async () => setMeds(await Medication.list("-created_date"));
+  const load = async () => {
+    setMeds(await Medication.list("-created_date"));
+    setAllergies(await Allergy.list());
+  };
   useEffect(() => { load(); }, []);
 
   const remove = async (id) => { await Medication.delete(id); load(); };
-
-  const BADGE = {
-    prescription: { cls: "bg-indigo-100 text-indigo-700", icon: Pill, label: t("table.catRx") },
-    otc: { cls: "bg-amber-100 text-amber-700", icon: ShoppingCart, label: t("table.catOtc") },
-    supplement: { cls: "bg-emerald-100 text-emerald-700", icon: Leaf, label: t("table.catSupp") },
-  };
 
   const FILTERS = [
     { value: "all", label: t("library.filterAll") },
@@ -55,8 +54,7 @@ export default function Library() {
               filter === f.value ? "bg-stone-900 text-white" : "border border-stone-200 text-stone-600 hover:bg-stone-100"
             }`}
           >
-            {f.label}
-            {f.value !== "all" && counts[f.value] ? ` ${counts[f.value]}` : ""}
+            {f.label}{f.value !== "all" && counts[f.value] ? ` ${counts[f.value]}` : ""}
           </button>
         ))}
       </div>
@@ -84,52 +82,10 @@ export default function Library() {
       )}
 
       {filtered.length > 0 && (
-        <div className="mt-6 overflow-hidden rounded-2xl border border-stone-200 bg-white">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-stone-50 text-xs uppercase tracking-wider text-stone-500">
-              <tr>
-                <th className="px-4 py-3 font-medium">{t("library.colName")}</th>
-                <th className="hidden px-4 py-3 font-medium sm:table-cell">{t("library.colType")}</th>
-                <th className="px-4 py-3 font-medium">{t("library.colDose")}</th>
-                <th className="hidden px-4 py-3 font-medium sm:table-cell">{t("library.colFreq")}</th>
-                <th className="hidden px-4 py-3 font-medium md:table-cell">{t("library.colUsed")}</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((m) => (
-                <tr key={m.id} className="border-t border-stone-100 hover:bg-stone-50/70">
-                  <td className="px-4 py-3">
-                    <Link to={`/medication?id=${m.id}`} className="font-medium text-stone-900 hover:underline">
-                      {m.name}
-                    </Link>
-                    {m.generic_name && <div className="text-xs text-stone-400">{m.generic_name}</div>}
-                  </td>
-                  <td className="hidden px-4 py-3 sm:table-cell">
-                    {(() => {
-                      const cat = m.category || "prescription";
-                      const b = BADGE[cat] || BADGE.prescription;
-                      const Icon = b.icon;
-                      return (
-                        <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${b.cls}`}>
-                          <Icon className="h-3 w-3" />
-                          {b.label}
-                        </span>
-                      );
-                    })()}
-                  </td>
-                  <td className="px-4 py-3 text-stone-600">{m.dose || "—"}</td>
-                  <td className="hidden px-4 py-3 text-stone-600 sm:table-cell">{m.frequency || "—"}</td>
-                  <td className="hidden max-w-xs truncate px-4 py-3 text-stone-600 md:table-cell">{m.purpose || "—"}</td>
-                  <td className="px-4 py-3 text-right">
-                    <button onClick={() => remove(m.id)} className="text-stone-300 hover:text-red-500">
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {filtered.map((m) => (
+            <LibraryCard key={m.id} med={m} allergies={allergies} onRemove={remove} />
+          ))}
         </div>
       )}
     </div>
