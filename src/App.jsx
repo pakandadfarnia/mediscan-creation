@@ -19,6 +19,8 @@ import MedicationDetail from '@/pages/MedicationDetail';
 import Allergies from '@/pages/Allergies';
 import Profile from '@/pages/Profile';
 import { LanguageProvider } from '@/lib/LanguageProvider';
+import { ProfileProvider } from '@/lib/ProfileContext';
+import ProfileGate from '@/components/ProfileGate';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -51,12 +53,14 @@ const AuthenticatedApp = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-        <Route element={<MedLayout />}>
-          <Route path="/" element={<Scan />} />
-          <Route path="/library" element={<Library />} />
-          <Route path="/medication" element={<MedicationDetail />} />
-          <Route path="/allergies" element={<Allergies />} />
-          <Route path="/profile" element={<Profile />} />
+        <Route element={<ProfileProvider><ProfileGate /></ProfileProvider>}>
+          <Route element={<MedLayout />}>
+            <Route path="/" element={<Scan />} />
+            <Route path="/library" element={<Library />} />
+            <Route path="/medication" element={<MedicationDetail />} />
+            <Route path="/allergies" element={<Allergies />} />
+            <Route path="/profile" element={<Profile />} />
+          </Route>
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />

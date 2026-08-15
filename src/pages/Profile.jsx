@@ -4,6 +4,7 @@ import { Profile as ProfileEntity, Allergy } from "@/lib/localDb";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLang } from "@/lib/LanguageProvider";
+import { useProfileGate } from "@/lib/ProfileContext";
 import { LANGS } from "@/lib/i18n";
 import { ShieldAlert, Loader2, Check } from "lucide-react";
 
@@ -11,6 +12,7 @@ const SEXES = ["male", "female", "other"];
 
 export default function Profile() {
   const { t, lang, setLang, textSize, setTextSize } = useLang();
+  const { refresh } = useProfileGate();
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState({ name: "", sex: "", date_of_birth: "", height: "", weight: "", language: "en" });
   const [allergyCount, setAllergyCount] = useState(0);
@@ -48,6 +50,7 @@ export default function Profile() {
       }
       setLang(form.language);
       setSaved(true);
+      await refresh();
     } finally {
       setSaving(false);
     }
@@ -59,6 +62,12 @@ export default function Profile() {
     <div>
       <h1 className="font-heading text-3xl font-semibold tracking-tight">{t("profile.title")}</h1>
       <p className="mt-1 text-sm text-stone-500">{t("profile.desc")}</p>
+
+      {profile && !profile.id && (
+        <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          {t("profile.welcome")}
+        </div>
+      )}
 
       <form onSubmit={save} className="mt-6 max-w-xl space-y-5">
         <div>
@@ -139,7 +148,7 @@ export default function Profile() {
         <div className="flex items-center gap-3 pt-1">
           <button
             type="submit"
-            disabled={saving}
+            disabled={saving || !form.name.trim()}
             className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white disabled:opacity-60"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
