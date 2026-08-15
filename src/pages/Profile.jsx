@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { Profile as ProfileEntity, Allergy } from "@/lib/localDb";
+import AllergyManager from "@/components/med/AllergyManager";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLang } from "@/lib/LanguageProvider";
@@ -18,6 +18,7 @@ export default function Profile() {
   const [allergyCount, setAllergyCount] = useState(0);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showAllergies, setShowAllergies] = useState(false);
 
   useEffect(() => {
     ProfileEntity.list().then((list) => {
@@ -165,10 +166,15 @@ export default function Profile() {
             <span className="text-sm font-semibold text-stone-800">{t("profile.allergies")}</span>
             <span className="text-xs text-stone-400">{t("profile.allergiesCount", { n: allergyCount })}</span>
           </div>
-          <Link to="/allergies" className="text-sm font-medium text-emerald-700 hover:underline">
+          <button
+            type="button"
+            onClick={() => setShowAllergies((v) => !v)}
+            className="text-sm font-medium text-emerald-700 hover:underline"
+          >
             {t("profile.manage")}
-          </Link>
+          </button>
         </div>
+        {showAllergies && <AllergyManager onChange={(n) => setAllergyCount(n)} />}
       </div>
     </div>
   );
