@@ -65,7 +65,8 @@ export default function Scan() {
         setPhase(PHASE.CONFIRM);
       }
     } catch (e) {
-      setError(t("scan.error"));
+      const reason = e?.message || e?.error || (typeof e === "string" ? e : "unknown error");
+      setError(`${t("scan.error")} — ${reason}`);
     }
     setBusy(false);
   };
