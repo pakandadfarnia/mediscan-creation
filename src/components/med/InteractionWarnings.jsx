@@ -13,10 +13,10 @@ export default function InteractionWarnings({ meds }) {
       <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
         <div className="flex items-center gap-2 text-emerald-700">
           <ShieldCheck className="h-5 w-5" />
-          <span className="font-semibold">No known major OTC/supplement interactions</span>
+          <span className="font-semibold">No known interactions with your other medicines</span>
         </div>
         <p className="mt-1 text-sm text-emerald-700">
-          None of your OTC or supplement items matched our list of known dangerous interactions with your prescriptions. This is not a substitute for a pharmacist review.
+          None of your over-the-counter medicines or supplements are known to clash with your prescriptions. Still, it's a good idea to check with your pharmacist.
         </p>
       </div>
     );
@@ -29,10 +29,10 @@ export default function InteractionWarnings({ meds }) {
     <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
       <div className="flex items-center gap-2 text-red-700">
         <ShieldAlert className="h-5 w-5" />
-        <span className="font-semibold">OTC / Supplement interaction warning</span>
+        <span className="font-semibold">Interaction warning</span>
       </div>
       <p className="mt-1 text-sm text-red-700">
-        Some over-the-counter or supplement items you logged can dangerously interact with your prescription medications:
+        Some of your over-the-counter medicines or supplements can clash with your prescription medicines:
       </p>
       <ul className="mt-3 space-y-2">
         {dangers.map((f, i) => (

@@ -35,6 +35,7 @@ export default async function(req) {
       "2. drug_food: foods, beverages, or dietary habits that should be avoided or limited while taking it (e.g. grapefruit with statins, vitamin-K foods with warfarin, alcohol with CNS depressants).\n\n" +
       "Rules: only flag clinically established, meaningful interactions — do not invent or speculate. " +
       "Use severity \"danger\" for serious/contraindicated/avoid-combination, \"caution\" for moderate/monitor. " +
+      "Write each description in plain, everyday words a non-doctor can understand — no medical jargon. For example: 'Taking these together can raise your risk of bleeding' instead of 'increases anticoagulant effect'. " +
       "Keep descriptions to one clear sentence. If there are none for a category, return an empty array for it.";
 
     const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
