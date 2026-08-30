@@ -13,6 +13,7 @@ import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import MedLayout from '@/components/med/Layout';
+import Welcome from '@/pages/Welcome';
 import Scan from '@/pages/Scan';
 import Library from '@/pages/Library';
 import MedicationDetail from '@/pages/MedicationDetail';
@@ -48,11 +49,12 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
+      <Route path="/welcome" element={<Welcome />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/welcome" replace />} />}>
         <Route element={<ProfileProvider><ProfileGate /></ProfileProvider>}>
           <Route element={<MedLayout />}>
             <Route path="/" element={<Scan />} />

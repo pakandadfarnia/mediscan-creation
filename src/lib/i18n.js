@@ -26,6 +26,14 @@ const D = {
   "common.loading": { en: "Loading…", es: "Cargando…", fr: "Chargement…", zh: "加载中…", pt: "Carregando…", ar: "جارٍ التحميل…" },
   "common.add": { en: "Add", es: "Añadir", fr: "Ajouter", zh: "添加", pt: "Adicionar", ar: "إضافة" },
 
+  "welcome.tagline": { en: "Snap a photo of any medication to digitize and organize your doses and schedules.", es: "Toma una foto de cualquier medicamento para digitalizar y organizar tus dosis y horarios.", fr: "Photographiez vos médicaments pour numériser et organiser vos doses et horaires.", zh: "拍下任何药物的照片，即可数字化并整理您的剂量和日程。", pt: "Tire uma foto de qualquer medicamento para digitalizar e organizar suas doses e horários.", ar: "التقط صورة لأي دواء لرقمنة وتنظيم جرعاتك وجداولك." },
+  "welcome.createAccount": { en: "Create account", es: "Crear cuenta", fr: "Créer un compte", zh: "创建账户", pt: "Criar conta", ar: "إنشاء حساب" },
+  "welcome.signIn": { en: "Sign in", es: "Iniciar sesión", fr: "Se connecter", zh: "登录", pt: "Entrar", ar: "تسجيل الدخول" },
+  "welcome.feat1Title": { en: "Scan your labels", es: "Escanea tus etiquetas", fr: "Scannez vos étiquettes", zh: "扫描标签", pt: "Digitalize seus rótulos", ar: "امسح الملصقات" },
+  "welcome.feat1Desc": { en: "Turn a photo into a clean, searchable table.", es: "Convierte una foto en una tabla limpia y buscable.", fr: "Transformez une photo en un tableau clair et recherchable.", zh: "把照片变成清晰、可搜索的表格。", pt: "Transforme uma foto em uma tabela limpa e pesquisável.", ar: "حوّل صورة إلى جدول نظيف وقابل للبحث." },
+  "welcome.feat2Title": { en: "Safety checks", es: "Verificaciones de seguridad", fr: "Contrôles de sécurité", zh: "安全检查", pt: "Verificações de segurança", ar: "فحوصات الأمان" },
+  "welcome.feat2Desc": { en: "Allergy and drug interaction alerts on every med.", es: "Alertas de alergias e interacciones en cada medicamento.", fr: "Alertes d'allergies et d'interactions pour chaque médicament.", zh: "每种药物都有过敏和药物相互作用提醒。", pt: "Alertas de alergia e interações em cada remédio.", ar: "تنبيهات الحساسية والتفاعلات لكل دواء." },
+
   "footer.disclaimer": {
     en: "Informational only — always follow your doctor or pharmacist's instructions.",
     es: "Solo informativo — siga siempre las instrucciones de su médico o farmacéutico.",
