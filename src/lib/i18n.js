@@ -82,6 +82,7 @@ const D = {
   "library.search": { en: "Search by name", es: "Buscar por nombre", fr: "Rechercher par nom", zh: "按名称搜索", pt: "Pesquisar por nome", ar: "البحث بالاسم" },
   "library.empty": { en: "Nothing here yet — scan your first medication.", es: "Aún no hay nada — escanea tu primer medicamento.", fr: "Rien pour l'instant — scannez votre premier médicament.", zh: "还没有内容 — 扫描您的第一种药物。", pt: "Nada aqui ainda — digitalize seu primeiro medicamento.", ar: "لا شيء بعد — امسح أول دواء." },
   "library.scanNow": { en: "Scan now", es: "Escanear ahora", fr: "Scanner maintenant", zh: "立即扫描", pt: "Digitalizar agora", ar: "امسح الآن" },
+  "library.interactionBadge": { en: "Interactions", es: "Interacciones", fr: "Interactions", zh: "相互作用", pt: "Interações", ar: "تفاعلات" },
   "library.colName": { en: "Name", es: "Nombre", fr: "Nom", zh: "名称", pt: "Nome", ar: "الاسم" },
   "library.colType": { en: "Type", es: "Tipo", fr: "Type", zh: "类型", pt: "Tipo", ar: "النوع" },
   "library.colDose": { en: "Dose", es: "Dosis", fr: "Dose", zh: "剂量", pt: "Dose", ar: "الجرعة" },

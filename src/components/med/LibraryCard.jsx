@@ -21,10 +21,17 @@ export default function LibraryCard({ med, allergies, onRemove }) {
   const hasAllergy = allergyFlags.length > 0;
   const dd = med.drug_interactions || [];
   const df = med.food_interactions || [];
+  const hasDD = dd.length > 0;
   const sideEffects = med.side_effects || [];
 
+  const cardTone = hasAllergy
+    ? "border-red-300 ring-1 ring-red-200"
+    : hasDD
+      ? "border-amber-300 ring-1 ring-amber-200"
+      : "border-stone-200";
+
   return (
-    <div className={`rounded-2xl border bg-white p-4 transition ${hasAllergy ? "border-red-300 ring-1 ring-red-200" : "border-stone-200"}`}>
+    <div className={`rounded-2xl border bg-white p-4 transition ${cardTone}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <Link to={`/medication?id=${med.id}`} className="font-heading text-lg font-semibold text-stone-900 hover:underline">
@@ -36,6 +43,11 @@ export default function LibraryCard({ med, allergies, onRemove }) {
           {hasAllergy && (
             <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700">
               <AlertTriangle className="h-3 w-3" /> {t("safety.allergy")}
+            </span>
+          )}
+          {hasDD && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700">
+              <Pill className="h-3 w-3" /> {t("library.interactionBadge")}
             </span>
           )}
           <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${b.cls}`}>
