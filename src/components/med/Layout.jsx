@@ -4,6 +4,7 @@ import { ScanLine, Library, ShieldAlert, User, LogOut } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useLang } from "@/lib/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function Layout() {
   const { t } = useLang();
@@ -15,8 +16,8 @@ export default function Layout() {
     { to: "/profile", label: t("nav.profile"), icon: User },
   ];
   return (
-    <div className="min-h-screen bg-background font-body text-stone-900">
-      <header className="sticky top-0 z-20 border-b border-stone-200/80 bg-background/85 backdrop-blur">
+    <div className="min-h-screen bg-background font-body text-foreground">
+      <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-4">
           <Link to="/" className="text-lg font-semibold tracking-tight">
             Medi<span className="text-primary">Scan</span>
@@ -28,7 +29,7 @@ export default function Layout() {
                   key={to}
                   to={to}
                   className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-colors ${
-                    pathname === to ? "bg-primary text-white" : "text-stone-600 hover:bg-stone-200/60"
+                    pathname === to ? "bg-primary text-white" : "text-muted-foreground hover:bg-muted"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -39,9 +40,10 @@ export default function Layout() {
             <div className="ml-1 hidden sm:block">
               <LanguageSwitcher />
             </div>
+            <ThemeToggle />
             <button
               onClick={() => base44.auth.logout()}
-              className="ml-1 rounded-full p-2 text-stone-400 transition-colors hover:text-stone-700"
+              className="ml-1 rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               title={t("common.signOut")}
             >
               <LogOut className="h-4 w-4" />
@@ -55,7 +57,7 @@ export default function Layout() {
       <main className="mx-auto max-w-4xl px-5 pb-24 pt-8">
         <Outlet />
       </main>
-      <footer className="pb-8 text-center text-xs text-stone-400">{t("footer.disclaimer")}</footer>
+      <footer className="pb-8 text-center text-xs text-muted-foreground">{t("footer.disclaimer")}</footer>
     </div>
   );
 }
