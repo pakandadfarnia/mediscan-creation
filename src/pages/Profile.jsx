@@ -97,7 +97,7 @@ export default function Profile() {
                 key={s}
                 onClick={() => set("sex", s)}
                 className={`rounded-full px-4 py-2 text-sm transition ${
-                  form.sex === s ? "bg-stone-900 text-white" : "border border-stone-300 text-stone-600 hover:bg-stone-100"
+                  form.sex === s ? "bg-primary text-white" : "border border-stone-300 text-stone-600 hover:bg-stone-100"
                 }`}
               >
                 {t(s === "male" ? "profile.sexMale" : s === "female" ? "profile.sexFemale" : "profile.sexOther")}
@@ -148,7 +148,7 @@ export default function Profile() {
                 type="button"
                 onClick={() => setTextSize(o.v)}
                 className={`rounded-full px-4 py-2 text-sm transition ${
-                  textSize === o.v ? "bg-stone-900 text-white" : "border border-stone-300 text-stone-600 hover:bg-stone-100"
+                  textSize === o.v ? "bg-primary text-white" : "border border-stone-300 text-stone-600 hover:bg-stone-100"
                 }`}
               >
                 {o.label}
@@ -162,7 +162,7 @@ export default function Profile() {
           <button
             type="submit"
             disabled={saving || !form.name.trim()}
-            className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-white transition hover:bg-primary/90 disabled:opacity-60"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
             {t("profile.save")}
@@ -181,7 +181,7 @@ export default function Profile() {
           <button
             type="button"
             onClick={() => setShowAllergies((v) => !v)}
-            className="text-sm font-medium text-emerald-700 hover:underline"
+            className="text-sm font-medium text-primary hover:underline"
           >
             {t("profile.manage")}
           </button>

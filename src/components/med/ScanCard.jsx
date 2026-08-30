@@ -16,7 +16,7 @@ export default function ScanCard({ onFile, busy, status }) {
 
   return (
     <div className="rounded-3xl border border-stone-200 bg-white p-8 text-center shadow-sm sm:p-12">
-      <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+      <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-50 text-teal-600">
         {busy ? <Loader2 className="h-7 w-7 animate-spin" /> : <Camera className="h-7 w-7" />}
       </div>
       <h2 className="font-heading text-2xl font-semibold tracking-tight">
@@ -26,14 +26,14 @@ export default function ScanCard({ onFile, busy, status }) {
         {busy ? t("scanCard.busyDesc") : t("scanCard.desc")}
       </p>
       {!busy && (
-        <p className="mx-auto mt-3 max-w-sm text-xs text-emerald-600">{t("scanCard.hint")}</p>
+        <p className="mx-auto mt-3 max-w-sm text-xs text-teal-600">{t("scanCard.hint")}</p>
       )}
 
       {!busy && (
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <button
             onClick={() => setCamOpen(true)}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-stone-900 px-6 py-3 text-sm font-medium text-white transition-transform hover:scale-[1.02] active:scale-[0.98]"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition-transform hover:scale-[1.02] active:scale-[0.98]"
           >
             <Camera className="h-4 w-4" /> {t("scanCard.camera")}
           </button>

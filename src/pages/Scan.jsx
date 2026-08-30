@@ -141,7 +141,7 @@ export default function Scan() {
           <div className="flex flex-wrap gap-3">
             <button
               onClick={() => exportPdf(lang)}
-              className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white"
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-white"
             >
               <Download className="h-4 w-4" /> {t("export.downloadPref", { lang: langName(lang) })}
             </button>
@@ -166,7 +166,7 @@ export default function Scan() {
           <button
             onClick={saveAll}
             disabled={saving}
-            className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-white transition hover:bg-primary/90 disabled:opacity-60"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
             {saving ? t("common.loading") : t("scan.saveN", { n: meds.length })}
@@ -224,7 +224,7 @@ export default function Scan() {
             <input id="add-more-file" type="file" accept="image/*" className="hidden"
               onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) addPhoto(f); }} />
           </div>
-          <button onClick={analyze} className="mt-6 inline-flex items-center gap-2 rounded-full bg-stone-900 px-6 py-3 text-sm font-medium text-white">
+          <button onClick={analyze} className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-white">
             <Plus className="h-4 w-4" /> {t("scan.analyze", { n: photos.length })}
           </button>
         </div>

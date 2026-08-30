@@ -32,7 +32,7 @@ export default function Welcome({ mode, onContinue }) {
     <div className="min-h-screen w-full bg-gradient-to-b from-stone-50 to-stone-100">
       <div className="mx-auto flex min-h-screen max-w-md flex-col px-6 py-12">
         <div className="flex flex-1 flex-col items-center justify-center text-center">
-          <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-stone-900 text-white shadow-lg">
+          <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-primary text-white shadow-lg">
             <Pill className="h-10 w-10" />
           </div>
           <h1 className="mt-6 font-heading text-4xl font-semibold tracking-tight text-stone-900">
@@ -64,7 +64,7 @@ export default function Welcome({ mode, onContinue }) {
           {effectiveMode === "authed" ? (
             <button
               onClick={handleContinue}
-              className="flex h-13 w-full items-center justify-center gap-2 rounded-full bg-stone-900 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-stone-800"
+              className="flex h-13 w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-primary/90"
             >
               {t("welcome.continue")}
               <ArrowRight className="h-4 w-4" />
@@ -73,7 +73,7 @@ export default function Welcome({ mode, onContinue }) {
             <>
               <Link
                 to="/register"
-                className="flex h-13 w-full items-center justify-center gap-2 rounded-full bg-stone-900 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-stone-800"
+                className="flex h-13 w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-primary/90"
               >
                 <UserPlus className="h-4 w-4" />
                 {t("welcome.createAccount")}

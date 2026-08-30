@@ -51,7 +51,7 @@ export default function Library() {
             key={f.value}
             onClick={() => setFilter(f.value)}
             className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
-              filter === f.value ? "bg-stone-900 text-white" : "border border-stone-200 text-stone-600 hover:bg-stone-100"
+              filter === f.value ? "bg-primary text-white" : "border border-stone-200 text-stone-600 hover:bg-stone-100"
             }`}
           >
             {f.label}{f.value !== "all" && counts[f.value] ? ` ${counts[f.value]}` : ""}
@@ -75,7 +75,7 @@ export default function Library() {
         <div className="mt-10 rounded-3xl border border-dashed border-stone-300 p-12 text-center">
           <Pill className="mx-auto h-8 w-8 text-stone-300" />
           <p className="mt-4 text-sm text-stone-500">{t("library.empty")}</p>
-          <Link to="/" className="mt-4 inline-block rounded-full bg-stone-900 px-5 py-2.5 text-sm text-white">
+          <Link to="/" className="mt-4 inline-block rounded-full bg-primary px-5 py-2.5 text-sm text-white">
             {t("library.scanNow")}
           </Link>
         </div>

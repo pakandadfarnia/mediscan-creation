@@ -19,7 +19,7 @@ export default function Layout() {
       <header className="sticky top-0 z-20 border-b border-stone-200/80 bg-stone-50/85 backdrop-blur">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-4">
           <Link to="/" className="text-lg font-semibold tracking-tight">
-            Medi<span className="text-emerald-600">Scan</span>
+            Medi<span className="text-primary">Scan</span>
           </Link>
           <div className="flex items-center gap-1">
             <nav className="flex items-center gap-1">
@@ -28,7 +28,7 @@ export default function Layout() {
                   key={to}
                   to={to}
                   className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-colors ${
-                    pathname === to ? "bg-stone-900 text-white" : "text-stone-600 hover:bg-stone-200/60"
+                    pathname === to ? "bg-primary text-white" : "text-stone-600 hover:bg-stone-200/60"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
