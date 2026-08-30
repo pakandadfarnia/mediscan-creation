@@ -22,6 +22,7 @@ import Profile from '@/pages/Profile';
 import { LanguageProvider } from '@/lib/LanguageProvider';
 import { ProfileProvider } from '@/lib/ProfileContext';
 import ProfileGate from '@/components/ProfileGate';
+import RememberGate from '@/components/RememberGate';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -55,6 +56,7 @@ const AuthenticatedApp = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/welcome" replace />} />}>
+        <Route element={<RememberGate />}>
         <Route element={<ProfileProvider><ProfileGate /></ProfileProvider>}>
           <Route element={<MedLayout />}>
             <Route path="/" element={<Scan />} />
@@ -63,6 +65,7 @@ const AuthenticatedApp = () => {
             <Route path="/allergies" element={<Allergies />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
+        </Route>
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />

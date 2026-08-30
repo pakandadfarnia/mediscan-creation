@@ -1,13 +1,32 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useLang } from "@/lib/LanguageProvider";
-import { Pill, LogIn, UserPlus, ShieldCheck, Camera } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
+import { getRemember, setRemember } from "@/lib/rememberAccount";
+import { Pill, LogIn, UserPlus, ShieldCheck, Camera, ArrowRight } from "lucide-react";
 
-// First-run title screen. Shown to unauthenticated users: a clean brand
-// splash with two primary actions — sign in, or create an account (which
-// leads into the email register flow, then the mandatory profile setup).
-export default function Welcome() {
+// First screen of the app. Shown to everyone on load.
+// - mode="unauth" (default, e.g. /welcome): sign in / create account.
+// - mode="authed" (rendered by RememberGate for signed-in users): a
+//   "Continue to MediScan" action plus a "remember my account" option so the
+//   app skips this screen on future visits.
+export default function Welcome({ mode, onContinue }) {
   const { t } = useLang();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const effectiveMode = mode || (isAuthenticated ? "authed" : "unauth");
+  const [remember, setRememberState] = useState(getRemember());
+
+  const toggleRemember = (v) => {
+    setRememberState(v);
+    setRemember(v);
+  };
+
+  const handleContinue = () => {
+    if (remember) setRemember(true);
+    if (onContinue) onContinue(remember);
+    else navigate("/");
+  };
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-stone-50 to-stone-100">
@@ -42,20 +61,42 @@ export default function Welcome() {
         </div>
 
         <div className="mt-8 space-y-3">
-          <Link
-            to="/register"
-            className="flex h-13 w-full items-center justify-center gap-2 rounded-full bg-stone-900 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-stone-800"
-          >
-            <UserPlus className="h-4 w-4" />
-            {t("welcome.createAccount")}
-          </Link>
-          <Link
-            to="/login"
-            className="flex h-13 w-full items-center justify-center gap-2 rounded-full border border-stone-300 bg-white px-5 py-3.5 text-sm font-semibold text-stone-700 transition hover:bg-stone-50"
-          >
-            <LogIn className="h-4 w-4" />
-            {t("welcome.signIn")}
-          </Link>
+          {effectiveMode === "authed" ? (
+            <button
+              onClick={handleContinue}
+              className="flex h-13 w-full items-center justify-center gap-2 rounded-full bg-stone-900 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-stone-800"
+            >
+              {t("welcome.continue")}
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          ) : (
+            <>
+              <Link
+                to="/register"
+                className="flex h-13 w-full items-center justify-center gap-2 rounded-full bg-stone-900 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-stone-800"
+              >
+                <UserPlus className="h-4 w-4" />
+                {t("welcome.createAccount")}
+              </Link>
+              <Link
+                to="/login"
+                className="flex h-13 w-full items-center justify-center gap-2 rounded-full border border-stone-300 bg-white px-5 py-3.5 text-sm font-semibold text-stone-700 transition hover:bg-stone-50"
+              >
+                <LogIn className="h-4 w-4" />
+                {t("welcome.signIn")}
+              </Link>
+            </>
+          )}
+
+          <label className="flex items-center justify-center gap-2 pt-1 text-sm text-stone-600">
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => toggleRemember(e.target.checked)}
+              className="h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-stone-500"
+            />
+            {t("welcome.remember")}
+          </label>
         </div>
       </div>
     </div>
