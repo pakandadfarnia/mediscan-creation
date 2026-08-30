@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useLang } from "@/lib/LanguageProvider";
 import { useProfileGate } from "@/lib/ProfileContext";
 import { LANGS } from "@/lib/i18n";
-import { ShieldAlert, Loader2, Check } from "lucide-react";
+import { ShieldAlert, Loader2, Check, AlertTriangle } from "lucide-react";
 
 const SEXES = ["male", "female", "other"];
 
@@ -65,8 +65,12 @@ export default function Profile() {
       <p className="mt-1 text-sm text-stone-500">{t("profile.desc")}</p>
 
       {profile && !profile.id && (
-        <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-          {t("profile.welcome")}
+        <div className="mt-4 flex items-start gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+          <span>
+            <span className="block font-medium">{t("profile.welcome")}</span>
+            {t("profile.requiredNotice")}
+          </span>
         </div>
       )}
 
