@@ -63,7 +63,11 @@ export default function ConfirmForm({ data, imageUrl, onConfirm, onRescan, aller
       {allergies?.length > 0 && (
         <div className="mt-5">
           <AllergyWarnings
-            med={{ ...data, inactive_ingredients: form.inactive_ingredients ? form.inactive_ingredients.split("\n").map((s) => s.trim()).filter(Boolean) : [] }}
+            med={{
+              ...data,
+              active_ingredients: form.active_ingredients ? form.active_ingredients.split("\n").map((s) => s.trim()).filter(Boolean) : [],
+              inactive_ingredients: form.inactive_ingredients ? form.inactive_ingredients.split("\n").map((s) => s.trim()).filter(Boolean) : [],
+            }}
             allergies={allergies}
           />
         </div>

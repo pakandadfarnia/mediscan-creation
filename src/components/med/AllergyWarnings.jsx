@@ -16,10 +16,15 @@ export default function AllergyWarnings({ med, allergies }) {
       <p className="mt-1 text-sm text-red-700">{t("allergyWarn.desc")}</p>
       <ul className="mt-2 space-y-1 text-sm text-red-700">
         {matches.map((m, i) => (
-          <li key={i} className="flex gap-2">
+          <li key={i} className="flex flex-wrap items-center gap-2">
             <span className="font-medium">{m.allergen}</span>
             <span className="text-red-500">→</span>
             <span className="capitalize">{m.ingredient}</span>
+            {m.source === "active" && (
+              <span className="rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-700">
+                {t("allergyWarn.active")}
+              </span>
+            )}
           </li>
         ))}
       </ul>
