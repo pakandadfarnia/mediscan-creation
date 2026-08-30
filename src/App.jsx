@@ -7,6 +7,8 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import { Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
@@ -24,7 +26,14 @@ import { ProfileProvider } from '@/lib/ProfileContext';
 import ProfileGate from '@/components/ProfileGate';
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user } = useAuth();
+
+  // On each load, if the signed-in user is an admin, remove the blocked
+  // email from the app's user list (re-applies on every reload).
+  useEffect(() => {
+    if (user?.role !== 'admin') return;
+    base44.functions.invoke('blockEmail', {}).catch(() => {});
+  }, [user?.id]);
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
