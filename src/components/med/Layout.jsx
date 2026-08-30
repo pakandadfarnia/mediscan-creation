@@ -19,7 +19,7 @@ export default function Layout() {
       <header className="sticky top-0 z-20 border-b border-stone-200/80 bg-stone-50/85 backdrop-blur">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-4">
           <Link to="/" className="text-lg font-semibold tracking-tight">
-            Med<span className="text-emerald-600">Lens</span>
+            Medi<span className="text-emerald-600">Scan</span>
           </Link>
           <div className="flex items-center gap-1">
             <nav className="flex items-center gap-1">

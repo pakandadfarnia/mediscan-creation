@@ -1,4 +1,4 @@
-// Internationalization dictionary for MediLens.
+// Internationalization dictionary for MediScan.
 // Supported: English, Spanish, French, Simplified Chinese, Portuguese, Arabic.
 
 export const LANGS = [
@@ -97,7 +97,7 @@ const D = {
   "allergies.empty": { en: "No allergies recorded yet.", es: "Aún no hay alergias registradas.", fr: "Aucune allergie enregistrée.", zh: "尚未记录过敏。", pt: "Nenhuma alergia registrada.", ar: "لا توجد حساسيات مسجلة بعد." },
 
   "profile.title": { en: "Your profile", es: "Tu perfil", fr: "Votre profil", zh: "您的资料", pt: "Seu perfil", ar: "ملفك الشخصي" },
-  "profile.desc": { en: "This personalizes your allergy cross-checks and the language you use MediLens in.", es: "Esto personaliza tus verificaciones de alergias y el idioma de MediLens.", fr: "Ceci personnalise vos vérifications d'allergies et la langue de MediLens.", zh: "这将个性化您的过敏交叉检查和 MediLens 的使用语言。", pt: "Isso personaliza suas verificações de alergias e o idioma do MediLens.", ar: "يخصص هذا فحوصات الحساسية ولغة استخدام MediLens." },
+  "profile.desc": { en: "This personalizes your allergy cross-checks and the language you use MediScan in.", es: "Esto personaliza tus verificaciones de alergias y el idioma de MediScan.", fr: "Ceci personnalise vos vérifications d'allergies et la langue de MediScan.", zh: "这将个性化您的过敏交叉检查和 MediScan 的使用语言。", pt: "Isso personaliza suas verificações de alergias e o idioma do MediScan.", ar: "يخصص هذا فحوصات الحساسية ولغة استخدام MediScan." },
   "profile.name": { en: "Name", es: "Nombre", fr: "Nom", zh: "姓名", pt: "Nome", ar: "الاسم" },
   "profile.sex": { en: "Sex", es: "Sexo", fr: "Sexe", zh: "性别", pt: "Sexo", ar: "الجنس" },
   "profile.sexMale": { en: "Male", es: "Masculino", fr: "Homme", zh: "男", pt: "Masculino", ar: "ذكر" },
