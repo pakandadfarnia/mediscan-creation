@@ -29,7 +29,7 @@ export default function Welcome({ mode, onContinue }) {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-stone-50 to-stone-100">
+    <div className="min-h-screen w-full bg-gradient-to-b from-teal-50/60 to-slate-100">
       <div className="mx-auto flex min-h-screen max-w-md flex-col px-6 py-12">
         <div className="flex flex-1 flex-col items-center justify-center text-center">
           <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-primary text-white shadow-lg">

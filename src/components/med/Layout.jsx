@@ -15,8 +15,8 @@ export default function Layout() {
     { to: "/profile", label: t("nav.profile"), icon: User },
   ];
   return (
-    <div className="min-h-screen bg-stone-50 font-body text-stone-900">
-      <header className="sticky top-0 z-20 border-b border-stone-200/80 bg-stone-50/85 backdrop-blur">
+    <div className="min-h-screen bg-background font-body text-stone-900">
+      <header className="sticky top-0 z-20 border-b border-stone-200/80 bg-background/85 backdrop-blur">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-4">
           <Link to="/" className="text-lg font-semibold tracking-tight">
             Medi<span className="text-primary">Scan</span>
