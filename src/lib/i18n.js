@@ -113,6 +113,8 @@ const D = {
   "profile.allergiesCount": { en: "{n} recorded", es: "{n} registrada(s)", fr: "{n} enregistrée(s)", zh: "已记录 {n} 项", pt: "{n} registrada(s)", ar: "تم تسجيل {n}" },
   "profile.manage": { en: "Manage allergies", es: "Gestionar alergias", fr: "Gérer les allergies", zh: "管理过敏", pt: "Gerenciar alergias", ar: "إدارة الحساسية" },
   "profile.langHint": { en: "You can switch language anytime from the top bar.", es: "Puedes cambiar el idioma en cualquier momento desde la barra superior.", fr: "Vous pouvez changer de langue à tout moment depuis la barre supérieure.", zh: "您可以随时从顶部栏切换语言。", pt: "Você pode mudar o idioma a qualquer momento na barra superior.", ar: "يمكنك تغيير اللغة في أي وقت من الشريط العلوي." },
+  "profile.reset": { en: "Reset profile", es: "Restablecer perfil", fr: "Réinitialiser le profil", zh: "重置个人资料", pt: "Redefinir perfil", ar: "إعادة تعيين الملف الشخصي" },
+  "profile.resetConfirm": { en: "Delete your saved profile? You'll need to create it again before using the app.", es: "¿Eliminar tu perfil guardado? Tendrás que crearlo de nuevo antes de usar la app.", fr: "Supprimer votre profil enregistré ? Vous devrez le recréer avant d'utiliser l'application.", zh: "删除已保存的个人资料？使用应用前需要重新创建。", pt: "Excluir seu perfil salvo? Você precisará criá-lo novamente antes de usar o app.", ar: "حذف ملفك الشخصي المحفوظ؟ ستحتاج إلى إنشائه مرة أخرى قبل استخدام التطبيق." },
 
   "detail.back": { en: "Library", es: "Biblioteca", fr: "Bibliothèque", zh: "药库", pt: "Biblioteca", ar: "المكتبة" },
   "detail.notFound": { en: "Medication not found.", es: "Medicamento no encontrado.", fr: "Médicament introuvable.", zh: "未找到药物。", pt: "Medicamento não encontrado.", ar: "الدواء غير موجود." },

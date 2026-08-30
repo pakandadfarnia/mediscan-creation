@@ -57,6 +57,14 @@ export default function Profile() {
     }
   };
 
+  const resetProfile = async () => {
+    if (!window.confirm(t("profile.resetConfirm"))) return;
+    if (profile?.id) await ProfileEntity.delete(profile.id);
+    setProfile({});
+    setForm({ name: "", sex: "", date_of_birth: "", height: "", weight: "", language: "en" });
+    await refresh();
+  };
+
   if (!profile) return <p className="text-sm text-stone-400">{t("common.loading")}</p>;
 
   return (
@@ -180,6 +188,18 @@ export default function Profile() {
         </div>
         {showAllergies && <AllergyManager onChange={(n) => setAllergyCount(n)} />}
       </div>
+
+      {profile?.id && (
+        <div className="mt-6">
+          <button
+            type="button"
+            onClick={resetProfile}
+            className="text-sm font-medium text-red-600 hover:underline"
+          >
+            {t("profile.reset")}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
