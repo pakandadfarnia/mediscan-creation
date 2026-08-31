@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Pill, ShoppingCart, Leaf, Trash2, AlertTriangle, UtensilsCrossed } from "lucide-react";
+import { Pill, ShoppingCart, Leaf, Trash2, AlertTriangle, UtensilsCrossed, Ban } from "lucide-react";
 import { checkAllergies } from "@/../base44/shared/allergyCheck";
 import { useLang } from "@/lib/LanguageProvider";
 
@@ -66,15 +66,24 @@ export default function LibraryCard({ med, allergies, onRemove }) {
       {med.purpose && <p className="mt-1 text-sm text-stone-600"><span className="font-medium">{t("table.purpose")}:</span> {med.purpose}</p>}
 
       {hasAllergy && (
-        <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
-          <div className="flex items-center gap-2 font-semibold">
-            <AlertTriangle className="h-4 w-4" /> {t("safety.allergy")}
+        <div className="mt-3 space-y-2">
+          <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+            <div className="flex items-center gap-2 font-semibold">
+              <AlertTriangle className="h-4 w-4" /> {t("safety.allergy")}
+            </div>
+            <ul className="mt-1 space-y-0.5">
+              {allergyFlags.map((a, i) => (
+                <li key={i}>
+                  {a.allergen} → {a.ingredient}
+                  {a.reaction && <span className="text-red-600"> — {a.reaction}</span>}
+                </li>
+              ))}
+            </ul>
           </div>
-          <ul className="mt-1 space-y-0.5">
-            {allergyFlags.map((a, i) => (
-              <li key={i}>{a.allergen} → {a.ingredient}</li>
-            ))}
-          </ul>
+          <div className="flex items-start gap-2 rounded-xl bg-red-600 px-3 py-2.5 text-sm font-semibold text-white">
+            <Ban className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>{t("safety.doNotUse")}</span>
+          </div>
         </div>
       )}
 

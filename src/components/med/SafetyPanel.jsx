@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { checkAllergies } from "@/../base44/shared/allergyCheck";
 import { checkDuplicates } from "@/../base44/shared/duplicateCheck";
 import { useLang } from "@/lib/LanguageProvider";
-import { ShieldCheck, Loader2, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { ShieldCheck, Loader2, AlertTriangle, CheckCircle2, Ban } from "lucide-react";
 
 // A single, compact panel that consolidates allergy, duplicate-ingredient,
 // drug-drug and drug-food checks for one medication.
@@ -34,6 +34,7 @@ export default function SafetyPanel({ med, others, allergies }) {
   const dd = inter?.drug_drug || [];
   const df = inter?.drug_food || [];
 
+  const hasAllergy = allergyFlags.length > 0;
   const rows = [];
   allergyFlags.forEach((a) =>
     rows.push({ tone: "danger", label: t("safety.allergy"), detail: t("safety.allergyMsg", { x: a.ingredient }) })
@@ -72,17 +73,25 @@ export default function SafetyPanel({ med, others, allergies }) {
           <CheckCircle2 className="h-4 w-4" /> {t("safety.noIssues")}
         </div>
       ) : (
-        <ul className="mt-3 space-y-2">
-          {rows.map((r, i) => {
-            const tone = TONE[r.tone];
-            return (
-              <li key={i} className={`flex items-start gap-2 rounded-xl border px-3 py-2.5 text-sm ${tone.wrap} ${tone.text}`}>
-                <AlertTriangle className={`mt-0.5 h-4 w-4 shrink-0 ${tone.icon}`} />
-                <span><span className="font-medium">{r.label}:</span> {r.detail}</span>
-              </li>
-            );
-          })}
-        </ul>
+        <div className="mt-3 space-y-2">
+          {hasAllergy && (
+            <div className="flex items-start gap-2 rounded-xl bg-red-600 px-3 py-2.5 text-sm font-semibold text-white">
+              <Ban className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>{t("safety.doNotUse")}</span>
+            </div>
+          )}
+          <ul className="space-y-2">
+            {rows.map((r, i) => {
+              const tone = TONE[r.tone];
+              return (
+                <li key={i} className={`flex items-start gap-2 rounded-xl border px-3 py-2.5 text-sm ${tone.wrap} ${tone.text}`}>
+                  <AlertTriangle className={`mt-0.5 h-4 w-4 shrink-0 ${tone.icon}`} />
+                  <span><span className="font-medium">{r.label}:</span> {r.detail}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       )}
     </div>
   );

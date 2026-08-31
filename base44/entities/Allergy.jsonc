@@ -14,6 +14,19 @@
         "other"
       ],
       "default": "other"
+    },
+    "reaction": {
+      "type": "string",
+      "description": "What happens when exposed, e.g. rash, swelling, difficulty breathing"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "mild",
+        "moderate",
+        "severe"
+      ],
+      "default": "mild"
     }
   },
   "required": [

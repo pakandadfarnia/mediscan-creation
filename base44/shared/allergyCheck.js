@@ -27,9 +27,9 @@ export function checkAllergies(med, allergies) {
     const term = String(a.name || "").trim().toLowerCase();
     if (!term) return;
     const activeHit = findIn(active, term);
-    if (activeHit) matches.push({ allergen: a.name, ingredient: activeHit, source: "active" });
+    if (activeHit) matches.push({ allergen: a.name, ingredient: activeHit, source: "active", reaction: a.reaction, severity: a.severity });
     const inactiveHit = findIn(inactive, term);
-    if (inactiveHit) matches.push({ allergen: a.name, ingredient: inactiveHit, source: "inactive" });
+    if (inactiveHit) matches.push({ allergen: a.name, ingredient: inactiveHit, source: "inactive", reaction: a.reaction, severity: a.severity });
   });
   return matches;
 }

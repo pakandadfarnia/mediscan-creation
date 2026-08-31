@@ -34,7 +34,10 @@
         "fr",
         "zh",
         "pt",
-        "ar"
+        "ar",
+        "fa",
+        "ja",
+        "ko"
       ],
       "default": "en"
     }
