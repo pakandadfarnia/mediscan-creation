@@ -61,7 +61,18 @@ export default function Scan() {
       if (!data || data.is_medication === false) {
         setError(t("scan.notMed"));
       } else {
-        setExtracted(data);
+        let finalData = data;
+        if (lang !== "en") {
+          setStatus(t("detail.translating"));
+          try {
+            const tr = await base44.functions.invoke("translateMedication", { medication: data, language: lang });
+            const translated = tr.data?.result;
+            if (translated) finalData = { ...data, ...translated };
+          } catch {
+            // translation optional — fall back to original extracted data
+          }
+        }
+        setExtracted(finalData);
         setPhase(PHASE.CONFIRM);
       }
     } catch (e) {
