@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { base44 } from "@/api/base44Client";
 import { Medication, Allergy } from "@/lib/localDb";
 import { Input } from "@/components/ui/input";
-import { Search, Pill } from "lucide-react";
+import { Search, Pill, Loader2 } from "lucide-react";
 import { useLang } from "@/lib/LanguageProvider";
 import LibraryCard from "@/components/med/LibraryCard";
 
 export default function Library() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [meds, setMeds] = useState(null);
+  const [displayMeds, setDisplayMeds] = useState(null);
+  const [translating, setTranslating] = useState(false);
   const [allergies, setAllergies] = useState([]);
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState("all");
@@ -21,6 +24,26 @@ export default function Library() {
 
   const remove = async (id) => { await Medication.delete(id); load(); };
 
+  // Translate the library's medication info into the user's preferred language
+  // so side effects, warnings, purpose, frequency, etc. show translated inline.
+  useEffect(() => {
+    if (!meds) return;
+    setDisplayMeds(meds);
+    if (lang === "en") return;
+    let cancelled = false;
+    setTranslating(true);
+    Promise.all(meds.map(async (m) => {
+      try {
+        const res = await base44.functions.invoke("translateMedication", { medication: m, language: lang });
+        const data = res.data?.result;
+        return data ? { ...m, ...data } : m;
+      } catch { return m; }
+    })).then((translated) => {
+      if (!cancelled) setDisplayMeds(translated);
+    }).finally(() => { if (!cancelled) setTranslating(false); });
+    return () => { cancelled = true; };
+  }, [meds, lang]);
+
   const FILTERS = [
     { value: "all", label: t("library.filterAll") },
     { value: "prescription", label: t("library.filterRx") },
@@ -28,13 +51,13 @@ export default function Library() {
     { value: "supplement", label: t("library.filterSupp") },
   ];
 
-  const filtered = (meds || []).filter((m) => {
+  const filtered = (displayMeds || []).filter((m) => {
     const matchesText = `${m.name} ${m.generic_name || ""}`.toLowerCase().includes(q.toLowerCase());
     const matchesCat = filter === "all" || (m.category || "prescription") === filter;
     return matchesText && matchesCat;
   });
 
-  const counts = (meds || []).reduce((acc, m) => {
+  const counts = (displayMeds || []).reduce((acc, m) => {
     const c = m.category || "prescription";
     acc[c] = (acc[c] || 0) + 1;
     return acc;
@@ -44,6 +67,11 @@ export default function Library() {
     <div>
       <h1 className="font-heading text-3xl font-semibold tracking-tight">{t("library.title")}</h1>
       <p className="mt-1 text-sm text-stone-500">{t("library.desc")}</p>
+      {translating && (
+        <div className="mt-3 flex items-center gap-2 text-sm text-stone-500">
+          <Loader2 className="h-4 w-4 animate-spin" /> {t("detail.translating")}
+        </div>
+      )}
 
       <div className="mt-6 flex flex-wrap gap-2">
         {FILTERS.map((f) => (
