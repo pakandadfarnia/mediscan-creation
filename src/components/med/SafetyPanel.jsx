@@ -8,7 +8,7 @@ import { ShieldCheck, Loader2, AlertTriangle, CheckCircle2, Ban } from "lucide-r
 // A single, compact panel that consolidates allergy, duplicate-ingredient,
 // drug-drug and drug-food checks for one medication.
 export default function SafetyPanel({ med, others, allergies }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [inter, setInter] = useState(null);
   const [loading, setLoading] = useState(true);
   const key = med?.id || med?.name;
@@ -18,7 +18,7 @@ export default function SafetyPanel({ med, others, allergies }) {
     setLoading(true);
     setInter(null);
     base44.functions
-      .invoke("checkInteractions", { medication: med, others })
+      .invoke("checkInteractions", { medication: med, others, language: lang })
       .then((res) => {
         if (cancelled) return;
         const r = res.data?.result || res.data;
@@ -27,7 +27,7 @@ export default function SafetyPanel({ med, others, allergies }) {
       .catch(() => !cancelled && setInter({ drug_drug: [], drug_food: [] }))
       .finally(() => !cancelled && setLoading(false));
     return () => { cancelled = true; };
-  }, [key, others?.length]);
+  }, [key, others?.length, lang]);
 
   const allergyFlags = allergies && allergies.length ? checkAllergies(med, allergies) : [];
   const dupFlags = checkDuplicates(med, others);

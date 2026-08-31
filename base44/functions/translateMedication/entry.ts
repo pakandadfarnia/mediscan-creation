@@ -28,7 +28,8 @@ export default async function(req) {
         "Translate these fields: purpose, side_effects, warnings, frequency, storage, route, form, inactive_ingredients, notes. " +
         "DO NOT translate or change these fields — return them exactly as given: name, generic_name, active_ingredients, dose, quantity, manufacturer, expiration_date, category. " +
         "Active and inactive ingredient NAMES that are standard scientific/chemical terms (e.g. acetaminophen, lactose, titanium dioxide) must be kept in their internationally recognized form, NOT translated, so they can still be matched against an allergy list. " +
-        "Keep the exact same JSON structure and field names. Return only the translated object, with the same fields as the input.\n\n" +
+        "Keep the exact same JSON structure and field names. Return only the translated object, with the same fields as the input. " +
+        "If the medication has drug_interactions or food_interactions arrays, translate only the 'description' field inside each item into " + LANG_NAME[language] + " (plain, everyday words); keep other_med, ingredient, food, and severity exactly as given.\n\n" +
         "INPUT MEDICATION JSON:\n" + JSON.stringify(medication),
       response_json_schema: {
         type: 'object',
@@ -49,7 +50,30 @@ export default async function(req) {
           storage: { type: 'string' },
           manufacturer: { type: 'string' },
           expiration_date: { type: 'string' },
-          notes: { type: 'string' }
+          notes: { type: 'string' },
+          drug_interactions: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                other_med: { type: 'string' },
+                ingredient: { type: 'string' },
+                description: { type: 'string' },
+                severity: { type: 'string', enum: ['danger', 'caution'] }
+              }
+            }
+          },
+          food_interactions: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                food: { type: 'string' },
+                description: { type: 'string' },
+                severity: { type: 'string', enum: ['danger', 'caution'] }
+              }
+            }
+          }
         }
       }
     });
@@ -71,6 +95,16 @@ export default async function(req) {
     // category must remain one of the enums; keep original if model returned garbage.
     if (translated.category && ['prescription', 'otc', 'supplement'].includes(translated.category)) {
       merged.category = translated.category;
+    }
+    // Translate interaction descriptions, preserving names & severity.
+    for (const arrKey of ['drug_interactions', 'food_interactions']) {
+      if (Array.isArray(medication[arrKey]) && Array.isArray(translated[arrKey])) {
+        merged[arrKey] = medication[arrKey].map((orig, i) => {
+          const tr = translated[arrKey][i];
+          if (!tr || !hadValue(tr.description)) return orig;
+          return { ...orig, description: tr.description };
+        });
+      }
     }
 
     return Response.json({ result: merged });

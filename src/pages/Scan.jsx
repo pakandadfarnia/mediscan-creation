@@ -142,7 +142,7 @@ export default function Scan() {
       let drug_interactions = [];
       let food_interactions = [];
       try {
-        const res = await base44.functions.invoke("checkInteractions", { medication: m, others });
+        const res = await base44.functions.invoke("checkInteractions", { medication: m, others, language: lang });
         const r = res.data?.result || res.data;
         drug_interactions = r?.drug_drug || [];
         food_interactions = r?.drug_food || [];
