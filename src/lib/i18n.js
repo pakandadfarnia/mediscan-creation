@@ -143,6 +143,7 @@ const D = {
 
   "detail.back": { en: "Library", es: "Biblioteca", fr: "Bibliothèque", zh: "药库", pt: "Biblioteca", ar: "المكتبة", fa: "کتابخانه", ja: "ライブラリ", ko: "라이브러리" },
   "detail.notFound": { en: "Medication not found.", es: "Medicamento no encontrado.", fr: "Médicament introuvable.", zh: "未找到药物。", pt: "Medicamento não encontrado.", ar: "الدواء غير موجود.", fa: "دارو یافت نشد.", ja: "お薬が見つかりません。", ko: "약물을 찾을 수 없습니다." },
+  "detail.translating": { en: "Translating details…", es: "Traduciendo detalles…", fr: "Traduction des détails…", zh: "正在翻译详情…", pt: "Traduzindo detalhes…", ar: "جارٍ ترجمة التفاصيل…", fa: "در حال ترجمه جزئیات…", ja: "詳細を翻訳中…", ko: "세부정보 번역 중…" },
 
   "safety.title": { en: "Safety check", es: "Verificación de seguridad", fr: "Contrôle de sécurité", zh: "安全检查", pt: "Verificação de segurança", ar: "فحص الأمان", fa: "بررسی ایمنی", ja: "安全性チェック", ko: "안전 점검" },
   "safety.allergy": { en: "Allergy alert", es: "Alerta de alergia", fr: "Alerte allergie", zh: "过敏提醒", pt: "Alerta de alergia", ar: "تنبيه حساسية", fa: "هشدار حساسیت", ja: "アレルギー警告", ko: "알레르기 경고" },
