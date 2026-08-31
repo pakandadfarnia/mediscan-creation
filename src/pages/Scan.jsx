@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import ScanCard from "@/components/med/ScanCard";
@@ -13,6 +13,7 @@ import ReadAloudButton from "@/components/med/ReadAloudButton";
 import { summarySpokenText } from "@/lib/spokenText";
 import { Medication, Allergy, Profile } from "@/lib/localDb";
 import { checkAllergies } from "@/../base44/shared/allergyCheck";
+import { getScanSession, updateScanSession, clearScanSession } from "@/lib/scanSession";
 import { Plus, X, Camera, Upload, Check, Loader2, Download } from "lucide-react";
 
 const PHASE = { CAPTURE: "capture", CONFIRM: "confirm", SUMMARY: "summary" };
@@ -20,14 +21,15 @@ const PHASE = { CAPTURE: "capture", CONFIRM: "confirm", SUMMARY: "summary" };
 export default function Scan() {
   const { t, lang } = useLang();
   const navigate = useNavigate();
-  const [phase, setPhase] = useState(PHASE.CAPTURE);
-  const [meds, setMeds] = useState([]);
-  const [photos, setPhotos] = useState([]);
+  const session = getScanSession();
+  const [phase, setPhase] = useState(session.phase);
+  const [meds, setMeds] = useState(session.meds);
+  const [photos, setPhotos] = useState(session.photos);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
-  const [extracted, setExtracted] = useState(null);
-  const [extractedImage, setExtractedImage] = useState("");
+  const [extracted, setExtracted] = useState(session.extracted);
+  const [extractedImage, setExtractedImage] = useState(session.extractedImage);
   const [addingCam, setAddingCam] = useState(false);
   const [saving, setSaving] = useState(false);
   const [allergies, setAllergies] = useState([]);
@@ -39,6 +41,39 @@ export default function Scan() {
     Medication.list("-created_date").then(setLibrary).catch(() => {});
     Profile.list().then((list) => setProfileName((list && list[0]?.name) || "")).catch(() => {});
   }, []);
+
+  // Persist the scan session so navigating away and back keeps your photos
+  // and scanned details until you save or start over.
+  useEffect(() => { updateScanSession({ phase }); }, [phase]);
+  useEffect(() => { updateScanSession({ meds }); }, [meds]);
+  useEffect(() => { updateScanSession({ photos }); }, [photos]);
+  useEffect(() => { updateScanSession({ extracted }); }, [extracted]);
+  useEffect(() => { updateScanSession({ extractedImage }); }, [extractedImage]);
+
+  // Re-translate scanned medications when the language changes on the summary
+  // page so the table stays in the user's selected language.
+  const prevLang = useRef(lang);
+  useEffect(() => {
+    if (phase !== PHASE.SUMMARY) return;
+    if (prevLang.current === lang) return;
+    prevLang.current = lang;
+    if (meds.length === 0) return;
+    let cancelled = false;
+    setBusy(true);
+    setStatus(t("detail.translating"));
+    Promise.all(meds.map(async (m) => {
+      try {
+        const res = await base44.functions.invoke("translateMedication", { medication: m, language: lang });
+        const data = res.data?.result;
+        return data ? { ...m, ...data } : m;
+      } catch { return m; }
+    })).then((translated) => {
+      if (!cancelled) setMeds(translated);
+    }).finally(() => {
+      if (!cancelled) { setBusy(false); setStatus(""); }
+    });
+    return () => { cancelled = true; };
+  }, [lang, phase]);
 
   const addPhoto = (file) => setPhotos((p) => [...p, { file, preview: URL.createObjectURL(file) }]);
   const removePhoto = (i) =>
@@ -117,6 +152,7 @@ export default function Scan() {
       await Medication.create({ ...fields, allergy_warnings: allergyWarnings, drug_interactions, food_interactions });
     }
     setSaving(false);
+    clearScanSession();
     navigate("/library");
   };
 
@@ -130,6 +166,11 @@ export default function Scan() {
       <div>
         <h1 className="font-heading text-3xl font-semibold tracking-tight">{t("scan.summaryTitle")}</h1>
         <p className="mt-1 text-sm text-stone-500">{t("scan.summaryDesc", { n: meds.length })}</p>
+        {busy && (
+          <div className="mt-4 flex items-center gap-2 text-sm text-stone-500">
+            <Loader2 className="h-4 w-4 animate-spin" /> {status}
+          </div>
+        )}
         <div className="mt-6">
           <SummaryTable meds={meds} />
         </div>
