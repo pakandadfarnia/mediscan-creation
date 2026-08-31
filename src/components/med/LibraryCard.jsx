@@ -1,8 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Pill, ShoppingCart, Leaf, Trash2, AlertTriangle, UtensilsCrossed, Ban } from "lucide-react";
+import { Pill, ShoppingCart, Leaf, Trash2, AlertTriangle, UtensilsCrossed, AlertOctagon } from "lucide-react";
 import { checkAllergies } from "@/../base44/shared/allergyCheck";
 import { useLang } from "@/lib/LanguageProvider";
+import AllergyStopWarning from "@/components/med/AllergyStopWarning";
 
 // Per-category badge styling (color + icon + label key).
 const BADGE = {
@@ -39,7 +40,8 @@ export default function LibraryCard({ med, allergies, onRemove }) {
     <div className={`rounded-2xl border bg-white p-4 transition ${cardTone}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <Link to={`/medication?id=${med.id}`} className="font-heading text-lg font-semibold text-stone-900 hover:underline">
+          <Link to={`/medication?id=${med.id}`} className="flex items-center gap-1.5 font-heading text-lg font-semibold text-stone-900 hover:underline">
+            {hasAllergy && <AlertOctagon className="h-5 w-5 shrink-0 text-red-600" />}
             {med.name}
           </Link>
           {med.generic_name && <p className="truncate text-xs text-stone-400">{med.generic_name}</p>}
@@ -85,10 +87,7 @@ export default function LibraryCard({ med, allergies, onRemove }) {
               ))}
             </ul>
           </div>
-          <div className="flex items-start gap-2 rounded-xl bg-red-600 px-3 py-2.5 text-sm font-semibold text-white">
-            <Ban className="mt-0.5 h-4 w-4 shrink-0" />
-            <span>{t("safety.doNotUse")}</span>
-          </div>
+          <AllergyStopWarning />
         </div>
       )}
 

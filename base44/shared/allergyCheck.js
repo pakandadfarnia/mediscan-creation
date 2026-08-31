@@ -9,6 +9,9 @@ export function checkAllergies(med, allergies) {
       .filter(Boolean);
   const active = normalize(med?.active_ingredients);
   const inactive = normalize(med?.inactive_ingredients);
+  // The medication's own name — matched so an allergy to the medication itself
+  // (e.g. allergy "Ibuprofen" vs. med named "Ibuprofen") is flagged too.
+  const name = String(med?.name || "").trim().toLowerCase();
   const matches = [];
 
   // Look for an ingredient that matches an allergen term. Matches on exact
@@ -34,6 +37,8 @@ export function checkAllergies(med, allergies) {
     if (activeHit) matches.push({ allergen: a.name, ingredient: activeHit, source: "active", reaction: a.reaction, severity: a.severity });
     const inactiveHit = findIn(inactive, term);
     if (inactiveHit) matches.push({ allergen: a.name, ingredient: inactiveHit, source: "inactive", reaction: a.reaction, severity: a.severity });
+    const nameHit = name && findIn([name], term);
+    if (nameHit) matches.push({ allergen: a.name, ingredient: nameHit, source: "name", reaction: a.reaction, severity: a.severity });
   });
   return matches;
 }

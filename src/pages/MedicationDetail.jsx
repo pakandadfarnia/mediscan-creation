@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Medication, Allergy } from "@/lib/localDb";
 import { Image } from "@/components/ui/image";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, AlertOctagon } from "lucide-react";
 import InfoTable from "@/components/med/InfoTable";
 import SafetyPanel from "@/components/med/SafetyPanel";
+import AllergyStopWarning from "@/components/med/AllergyStopWarning";
+import { checkAllergies } from "@/../base44/shared/allergyCheck";
 import { useLang } from "@/lib/LanguageProvider";
 import ReadAloudButton from "@/components/med/ReadAloudButton";
 import { medicationSpokenText } from "@/lib/spokenText";
@@ -55,14 +57,26 @@ export default function MedicationDetail() {
   if (!med) return <p className="text-sm text-stone-500">{t("detail.notFound")}</p>;
 
   const shown = displayMed || med;
+  // Cross-check the original (untranslated) record against the user's allergies
+  // so the stop-sign warning appears next to the name when there's a match.
+  const allergyFlags = allergies?.length ? checkAllergies(med, allergies) : [];
+  const hasAllergy = allergyFlags.length > 0;
 
   return (
     <div>
       <Link to="/library" className="inline-flex items-center gap-2 text-sm text-stone-500 hover:text-stone-800">
         <ArrowLeft className="h-4 w-4" /> {t("detail.back")}
       </Link>
-      <h1 className="mt-4 font-heading text-3xl font-semibold tracking-tight">{shown.name}</h1>
+      <h1 className="mt-4 flex items-center gap-2 font-heading text-3xl font-semibold tracking-tight">
+        {hasAllergy && <AlertOctagon className="h-7 w-7 shrink-0 text-red-600" />}
+        {shown.name}
+      </h1>
       {shown.generic_name && <p className="mt-1 text-sm text-stone-500">{shown.generic_name}</p>}
+      {hasAllergy && (
+        <div className="mt-3">
+          <AllergyStopWarning />
+        </div>
+      )}
 
       <div className="mt-3">
         <ReadAloudButton text={medicationSpokenText(shown, t)} />
