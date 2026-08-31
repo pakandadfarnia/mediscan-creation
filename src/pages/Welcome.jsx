@@ -1,30 +1,22 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLang } from "@/lib/LanguageProvider";
 import { useAuth } from "@/lib/AuthContext";
-import { getRemember, setRemember } from "@/lib/rememberAccount";
 import { Pill, LogIn, UserPlus, ShieldCheck, Camera, ArrowRight } from "lucide-react";
 
 // First screen of the app. Shown to everyone on load.
 // - mode="unauth" (default, e.g. /welcome): sign in / create account.
 // - mode="authed" (rendered by RememberGate for signed-in users): a
-//   "Continue to MediScan" action plus a "remember my account" option so the
-//   app skips this screen on future visits.
+//   "Continue to MediScan" action. The "remember my account" option lives on
+//   the Login page, where the user signs in.
 export default function Welcome({ mode, onContinue }) {
   const { t } = useLang();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const effectiveMode = mode || (isAuthenticated ? "authed" : "unauth");
-  const [remember, setRememberState] = useState(getRemember());
-
-  const toggleRemember = (v) => {
-    setRememberState(v);
-    setRemember(v);
-  };
 
   const handleContinue = () => {
-    if (remember) setRemember(true);
-    if (onContinue) onContinue(remember);
+    if (onContinue) onContinue();
     else navigate("/");
   };
 
@@ -87,16 +79,6 @@ export default function Welcome({ mode, onContinue }) {
               </Link>
             </>
           )}
-
-          <label className="flex items-center justify-center gap-2 pt-1 text-sm text-stone-600">
-            <input
-              type="checkbox"
-              checked={remember}
-              onChange={(e) => toggleRemember(e.target.checked)}
-              className="h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-stone-500"
-            />
-            {t("welcome.remember")}
-          </label>
         </div>
       </div>
     </div>
