@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,9 +7,11 @@ import AllergyWarnings from "./AllergyWarnings";
 import CategoryPicker from "./CategoryPicker";
 import DuplicateWarnings from "./DuplicateWarnings";
 import { useLang } from "@/lib/LanguageProvider";
+import { base44 } from "@/api/base44Client";
+import { Loader2 } from "lucide-react";
 
 export default function ConfirmForm({ data, imageUrl, onConfirm, onRescan, allergies, others }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const FIELDS = [
     { key: "name", labelKey: "confirm.f.name", type: "text", required: true },
     { key: "generic_name", labelKey: "confirm.f.generic", type: "text" },
@@ -38,6 +40,38 @@ export default function ConfirmForm({ data, imageUrl, onConfirm, onRescan, aller
     return f;
   });
 
+  const [translating, setTranslating] = useState(false);
+  const prevLang = useRef(lang);
+
+  // Re-translate the editable fields when the language changes while on this
+  // page, so frequency, route, purpose, side effects, etc. follow the user's
+  // selected language.
+  useEffect(() => {
+    if (prevLang.current === lang) return;
+    prevLang.current = lang;
+    const medObj = { ...form };
+    ARRAYS.forEach(({ key }) => {
+      medObj[key] = String(form[key] || "").split("\n").map((s) => s.trim()).filter(Boolean);
+    });
+    let cancelled = false;
+    setTranslating(true);
+    base44.functions.invoke("translateMedication", { medication: medObj, language: lang })
+      .then((res) => {
+        if (cancelled) return;
+        const data = res.data?.result;
+        if (data) {
+          const next = { ...form, ...data };
+          ARRAYS.forEach(({ key }) => {
+            next[key] = Array.isArray(next[key]) ? next[key].join("\n") : next[key] || "";
+          });
+          setForm(next);
+        }
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setTranslating(false); });
+    return () => { cancelled = true; };
+  }, [lang]);
+
   const set = (k, v) => setForm((s) => ({ ...s, [k]: v }));
 
   const submit = (done = false) => {
@@ -55,6 +89,11 @@ export default function ConfirmForm({ data, imageUrl, onConfirm, onRescan, aller
     <div>
       <h2 className="font-heading text-2xl font-semibold tracking-tight">{t("confirm.title")}</h2>
       <p className="mt-1 text-sm text-stone-500">{t("confirm.desc")}</p>
+      {translating && (
+        <div className="mt-3 flex items-center gap-2 text-sm text-stone-500">
+          <Loader2 className="h-4 w-4 animate-spin" /> {t("detail.translating")}
+        </div>
+      )}
 
       {imageUrl && (
         <Image src={imageUrl} className="mt-5 h-44 w-full rounded-2xl object-cover" fittingType="fill" />
