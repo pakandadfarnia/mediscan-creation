@@ -7,25 +7,32 @@ import { Search, Pill, Loader2 } from "lucide-react";
 import { useLang } from "@/lib/LanguageProvider";
 import LibraryCard from "@/components/med/LibraryCard";
 
+// Library page: lists every saved medication as cards with inline allergy and
+// interaction warnings. Translates all medication info (including stored
+// interaction descriptions) into the user's preferred language on load and
+// whenever the language changes.
 export default function Library() {
   const { t, lang } = useLang();
-  const [meds, setMeds] = useState(null);
-  const [displayMeds, setDisplayMeds] = useState(null);
+  const [meds, setMeds] = useState(null);          // raw records from the DB
+  const [displayMeds, setDisplayMeds] = useState(null); // translated records for rendering
   const [translating, setTranslating] = useState(false);
   const [allergies, setAllergies] = useState([]);
-  const [q, setQ] = useState("");
-  const [filter, setFilter] = useState("all");
+  const [q, setQ] = useState("");                  // search query
+  const [filter, setFilter] = useState("all");    // category filter
 
+  // Load the saved medications and allergies from the local DB.
   const load = async () => {
     setMeds(await Medication.list("-created_date"));
     setAllergies(await Allergy.list());
   };
   useEffect(() => { load(); }, []);
 
+  // Delete a medication and refresh the list.
   const remove = async (id) => { await Medication.delete(id); load(); };
 
   // Translate the library's medication info into the user's preferred language
   // so side effects, warnings, purpose, frequency, etc. show translated inline.
+  // Shows the original records immediately, then swaps in the translated ones.
   useEffect(() => {
     if (!meds) return;
     setDisplayMeds(meds);
@@ -51,12 +58,14 @@ export default function Library() {
     { value: "supplement", label: t("library.filterSupp") },
   ];
 
+  // Apply the search query + category filter to the (translated) records.
   const filtered = (displayMeds || []).filter((m) => {
     const matchesText = `${m.name} ${m.generic_name || ""}`.toLowerCase().includes(q.toLowerCase());
     const matchesCat = filter === "all" || (m.category || "prescription") === filter;
     return matchesText && matchesCat;
   });
 
+  // Count records per category for the filter badges.
   const counts = (displayMeds || []).reduce((acc, m) => {
     const c = m.category || "prescription";
     acc[c] = (acc[c] || 0) + 1;

@@ -3,6 +3,8 @@ import { Globe } from "lucide-react";
 import { useLang } from "@/lib/LanguageProvider";
 import { LANGS } from "@/lib/i18n";
 
+// Compact language dropdown shown in the header. Reads/sets the active language
+// via the language context, which also persists the choice to the user's profile.
 export default function LanguageSwitcher() {
   const { lang, setLang } = useLang();
   return (

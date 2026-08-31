@@ -4,19 +4,25 @@ import { ShieldAlert, Trash2 } from "lucide-react";
 import { useLang } from "@/lib/LanguageProvider";
 import AllergyEntryForm from "@/components/med/AllergyEntryForm";
 
+// Tailwind classes for each allergy severity badge.
 const SEV_STYLE = {
   mild: "bg-emerald-100 text-emerald-700",
   moderate: "bg-amber-100 text-amber-700",
   severe: "bg-red-100 text-red-700",
 };
 
+// Allergies page: lets the user record the food/chemical ingredients they're
+// allergic to (with reaction + severity). Every scanned medication is cross-
+// checked against this list.
 export default function Allergies() {
   const { t } = useLang();
   const [list, setList] = useState(null);
 
+  // Load all saved allergies from the local DB.
   const load = async () => setList(await Allergy.list());
   useEffect(() => { load(); }, []);
 
+  // Delete an allergy and refresh the list.
   const remove = async (id) => { await Allergy.delete(id); load(); };
 
   return (

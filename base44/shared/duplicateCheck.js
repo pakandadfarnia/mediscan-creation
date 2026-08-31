@@ -1,9 +1,11 @@
 // Detects when two medications share the same active ingredient, which risks
 // accidental overdose (e.g. Percocet + Tylenol both contain acetaminophen).
 
+// Normalize an ingredient string: lowercase, strip punctuation, collapse spaces.
 const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
 
-// Synonyms / aliases mapped to a single canonical name.
+// Synonyms / aliases mapped to a single canonical name, so different brand/
+// generic spellings of the same drug collapse to one ingredient for matching.
 const ALIASES = {
   acetaminophen: "acetaminophen",
   paracetamol: "acetaminophen",
@@ -43,6 +45,7 @@ const ALIASES = {
   esomeprazole: "esomeprazole",
 };
 
+// Return the canonical name for a raw ingredient string (alias-resolved).
 function canonical(ing) {
   const n = norm(ing);
   return ALIASES[n] || n;
@@ -66,6 +69,7 @@ export function activeIngredientSet(med) {
   return set;
 }
 
+// Friendlier display names for a few common ingredients (adds the brand name).
 const DISPLAY = {
   acetaminophen: "Acetaminophen (Tylenol)",
   ibuprofen: "Ibuprofen (Advil/Motrin)",
@@ -74,13 +78,15 @@ const DISPLAY = {
   pseudoephedrine: "Pseudoephedrine (Sudafed)",
 };
 
+// Capitalize the first letter for ingredients without a special display name.
 function display(name) {
   return DISPLAY[name] || name.charAt(0).toUpperCase() + name.slice(1);
 }
 
 // newMed: the medication just scanned.
 // existingMeds: everything else already on the list (library + same scan batch).
-// Returns flags: [{ ingredient, others: [{ name }], severity }]
+// Returns flags: [{ ingredient, ingredientDisplay, others: [names], severity }]
+// for each active ingredient that also appears in another medication.
 export function checkDuplicates(newMed, existingMeds) {
   const flags = [];
   if (!newMed) return flags;

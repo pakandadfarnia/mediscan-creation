@@ -24,10 +24,12 @@ import { ProfileProvider } from '@/lib/ProfileContext';
 import ProfileGate from '@/components/ProfileGate';
 import RememberGate from '@/components/RememberGate';
 
+// Inner app that only renders once the providers are mounted. Decides what to
+// show based on auth/loading state, then mounts the route tree.
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
 
-  // Show loading spinner while checking app public settings or auth
+  // Show loading spinner while checking app public settings or auth.
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
@@ -47,7 +49,10 @@ const AuthenticatedApp = () => {
     }
   }
 
-  // Render the main app
+  // Render the main app. Public auth routes are outside the guard; everything
+  // else is nested under ProtectedRoute → RememberGate → ProfileGate → MedLayout
+  // so a user must be signed in, acknowledged, and have a profile to reach the
+  // working screens.
   return (
     <Routes>
       <Route path="/welcome" element={<Welcome />} />
@@ -74,6 +79,8 @@ const AuthenticatedApp = () => {
 };
 
 
+// Root component: wraps the app in the auth, query, language and router
+// providers, plus the toast notifier, then renders AuthenticatedApp.
 function App() {
 
   return (

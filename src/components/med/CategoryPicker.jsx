@@ -3,6 +3,9 @@ import { Pill, ShoppingCart, Leaf } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { useLang } from "@/lib/LanguageProvider";
 
+// Lets the user classify a medication as prescription, OTC, or supplement.
+// The category drives the cross-checks (e.g. OTC/supplement ↔ prescription
+// interaction rules) and the badge colors elsewhere in the app.
 export default function CategoryPicker({ value, onChange }) {
   const { t } = useLang();
   const OPTIONS = [
@@ -11,6 +14,7 @@ export default function CategoryPicker({ value, onChange }) {
     { value: "supplement", label: t("cat.supp"), icon: Leaf, hint: t("cat.suppHint"), tone: "emerald" },
   ];
 
+  // Active/idle styling per color tone.
   const TONE = {
     indigo: { on: "border-indigo-500 bg-indigo-50 text-indigo-700", dot: "bg-indigo-500", idle: "border-stone-200 hover:border-stone-300" },
     amber: { on: "border-amber-500 bg-amber-50 text-amber-700", dot: "bg-amber-500", idle: "border-stone-200 hover:border-stone-300" },

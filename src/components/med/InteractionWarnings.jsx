@@ -2,9 +2,14 @@ import React from "react";
 import { AlertTriangle, ShieldAlert, ShieldCheck } from "lucide-react";
 import { checkInteractions } from "@/../base44/shared/interactions";
 
+// Shows OTC/supplement ↔ prescription interaction warnings using the curated
+// client-side rule set (base44/shared/interactions). If there are none but the
+// mix could have interactions (both OTC-like and Rx present), shows a
+// reassuring "no known interactions" message.
 export default function InteractionWarnings({ meds }) {
   const flags = checkInteractions(meds);
   if (!flags.length) {
+    // Only show the all-clear when there's at least one OTC-like and one Rx med.
     if (!Array.isArray(meds) || meds.length < 2) return null;
     const hasOtc = meds.some((m) => m.category === "otc" || m.category === "supplement");
     const hasRx = meds.some((m) => m.category === "prescription");
@@ -22,6 +27,7 @@ export default function InteractionWarnings({ meds }) {
     );
   }
 
+  // Split warnings by severity so dangers (red) and cautions (amber) render separately.
   const dangers = flags.filter((f) => f.severity === "danger");
   const cautions = flags.filter((f) => f.severity === "caution");
 

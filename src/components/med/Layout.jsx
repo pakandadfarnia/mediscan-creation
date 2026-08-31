@@ -6,9 +6,13 @@ import { useLang } from "@/lib/LanguageProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import ThemeToggle from "@/components/ThemeToggle";
 
+// App shell: a sticky header with brand, navigation, language switcher,
+// theme toggle and sign-out, plus the routed page content and a footer
+// disclaimer. The active nav item is highlighted by matching the pathname.
 export default function Layout() {
   const { t } = useLang();
   const { pathname } = useLocation();
+  // Primary navigation entries (route, localized label, icon).
   const NAV = [
     { to: "/", label: t("nav.scan"), icon: ScanLine },
     { to: "/library", label: t("nav.library"), icon: Library },

@@ -1,5 +1,7 @@
 import React from 'react';
 
+// Shown when a signed-in user isn't registered for this app. Tells them to
+// contact the administrator or try logging in with the correct account.
 const UserNotRegisteredError = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-white to-slate-50">

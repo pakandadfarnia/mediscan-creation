@@ -1,6 +1,8 @@
 import React from "react";
 import { useLang } from "@/lib/LanguageProvider";
 
+// Rows for the detail table: each entry is [i18n label key, medication field].
+// Array fields are joined with " · "; empty values are skipped.
 const ROWS = [
   ["table.name", "name"],
   ["table.generic", "generic_name"],
@@ -20,6 +22,7 @@ const ROWS = [
   ["table.notes", "notes"],
 ];
 
+// Renders a medication's full details as a two-column label/value table.
 export default function InfoTable({ data }) {
   const { t } = useLang();
   return (

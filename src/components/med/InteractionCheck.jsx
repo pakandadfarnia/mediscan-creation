@@ -4,6 +4,7 @@ import { Loader2, AlertTriangle, UtensilsCrossed, Pill, CheckCircle2 } from "luc
 
 // Asks the backend (LLM) for drug-drug and drug-food interactions for `med`,
 // comparing it against `others` (the rest of the patient's medications).
+// Shows a loading state, an error fallback, or the interaction lists.
 export default function InteractionCheck({ med, others }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -11,6 +12,7 @@ export default function InteractionCheck({ med, others }) {
 
   const key = med?.id || med?.name;
 
+  // Fetch interactions whenever the medication or comparison list changes.
   useEffect(() => {
     let cancelled = false;
     setLoading(true);

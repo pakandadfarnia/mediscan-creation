@@ -1,22 +1,38 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 
+// Backend function: reads one or more photos of a medication label and uses an
+// LLM (with vision) to extract a structured medication object. Runs server-side
+// so the user's token is used securely and the heavy prompt stays out of the
+// client. Called from the Scan page after photos are uploaded.
 export default async function (req) {
   try {
+    // Authenticate the caller — only signed-in users can scan.
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
+    // Accept either a single image_url or an array of image_urls (multi-photo
+    // scans of the same medication). Normalize to an array.
     const body = await req.json();
     let imageUrls = body?.image_urls;
     if (imageUrls && !Array.isArray(imageUrls)) imageUrls = [imageUrls];
     if (!imageUrls && body?.image_url) imageUrls = [body.image_url];
+
+    // Validate that we got at least one usable URL, and cap the count to keep
+    // the LLM call bounded (max 8 photos).
     if (!Array.isArray(imageUrls) || imageUrls.length === 0 ||
         !imageUrls.every((u) => typeof u === 'string' && u.length > 0 && u.length < 2000)) {
       return Response.json({ error: 'One or more valid image_urls are required' }, { status: 400 });
     }
     if (imageUrls.length > 8) imageUrls = imageUrls.slice(0, 8);
 
+    // Build a small phrase describing how many photos we're sending.
     const oneOrMore = imageUrls.length === 1 ? 'this photo' : 'these ' + imageUrls.length + ' photos';
+
+    // Call the vision-capable LLM with the photos attached. The prompt instructs
+    // it to combine info across all photos, use plain language, and — critically
+    // — capture EVERY active ingredient (for duplicate-dose detection) and every
+    // inactive ingredient (for allergy cross-checks), plus classify the category.
     const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt:
         "You are a pharmacology assistant. Look at " + oneOrMore + " of a medication package, bottle, blister pack or label. " +
@@ -29,6 +45,7 @@ export default async function (req) {
         "IMPORTANT: classify the item into 'category'. Use 'prescription' if it appears to be a pharmacy-dispensed Rx medicine (look for 'Rx only', an NDC with Rx, prescription number, or a drug usually requiring a prescription). Use 'otc' for over-the-counter medicines bought off the shelf (ibuprofen, acetaminophen, cold/allergy tablets, antacids, laxatives, etc.). Use 'supplement' for vitamins, minerals, herbals and dietary supplements (look for 'Supplement Facts', 'herbal', botanical names, or brands like Nature Made, Centrum, St. John's Wort, melatonin). When in doubt, prefer 'otc' for a labelled drug and 'supplement' only for supplement-fact items. " +
         "If none of the images show a medication, set is_medication to false.",
       file_urls: imageUrls,
+      // The JSON schema forces a consistent, typed shape the client can rely on.
       response_json_schema: {
         type: 'object',
         properties: {
@@ -54,6 +71,8 @@ export default async function (req) {
       }
     });
 
+    // Return the extracted object; the Scan page checks is_medication and then
+    // optionally translates it before showing the confirm form.
     return Response.json({ result });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

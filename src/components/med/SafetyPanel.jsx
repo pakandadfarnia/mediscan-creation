@@ -6,13 +6,17 @@ import { useLang } from "@/lib/LanguageProvider";
 import { ShieldCheck, Loader2, AlertTriangle, CheckCircle2, Ban } from "lucide-react";
 
 // A single, compact panel that consolidates allergy, duplicate-ingredient,
-// drug-drug and drug-food checks for one medication.
+// drug-drug and drug-food checks for one medication. Allergy and duplicate
+// checks run locally (instant); drug/food interactions are fetched from the
+// checkInteractions backend function in the user's language.
 export default function SafetyPanel({ med, others, allergies }) {
   const { t, lang } = useLang();
-  const [inter, setInter] = useState(null);
+  const [inter, setInter] = useState(null);  // LLM drug/food interaction results
   const [loading, setLoading] = useState(true);
   const key = med?.id || med?.name;
 
+  // Fetch drug/food interactions whenever the medication, the comparison list,
+  // or the language changes. Re-runs so descriptions stay in the active language.
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -29,12 +33,16 @@ export default function SafetyPanel({ med, others, allergies }) {
     return () => { cancelled = true; };
   }, [key, others?.length, lang]);
 
+  // Run the local (instant) allergy and duplicate-ingredient checks against
+  // the original med so standard ingredient names are matched correctly.
   const allergyFlags = allergies && allergies.length ? checkAllergies(med, allergies) : [];
   const dupFlags = checkDuplicates(med, others);
   const dd = inter?.drug_drug || [];
   const df = inter?.drug_food || [];
 
   const hasAllergy = allergyFlags.length > 0;
+  // Build a single ordered list of warning rows to render (allergies first,
+  // then duplicates, then drug-drug, then drug-food), each tagged with a tone.
   const rows = [];
   allergyFlags.forEach((a) =>
     rows.push({ tone: "danger", label: t("safety.allergy"), detail: t("safety.allergyMsg", { x: a.ingredient }) })

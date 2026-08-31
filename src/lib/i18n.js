@@ -19,6 +19,8 @@ export function langName(code) {
   return LANGS.find((l) => l.code === code)?.name || code;
 }
 
+// The translation dictionary. Each key maps to an object holding the string in
+// every supported language. Keys are grouped roughly by screen/feature above.
 const D = {
   "nav.scan": { en: "Scan", es: "Escanear", fr: "Scanner", zh: "扫描", pt: "Digitalizar", ar: "مسح", fa: "اسکن", ja: "スキャン", ko: "스캔" },
   "nav.library": { en: "Library", es: "Biblioteca", fr: "Bibliothèque", zh: "药库", pt: "Biblioteca", ar: "المكتبة", fa: "کتابخانه", ja: "ライブラリ", ko: "라이브러리" },
@@ -215,6 +217,8 @@ const D = {
   "dupWarn.desc": { en: "This medicine has the same active ingredient as another one on your list. Taking both could give you too much of it.", es: "Esta medicina tiene el mismo ingrediente activo que otra en tu lista. Tomar ambas podría darte una cantidad excesiva.", fr: "Ce médicament a le même ingrédient actif qu'un autre de votre liste. Les prendre ensemble peut être excessif.", zh: "此药与列表中的另一种药物含有相同的活性成分。同时服用可能过量。", pt: "Este remédio tem o mesmo ingrediente ativo que outro da sua lista. Tomar ambos pode ser excessivo.", ar: "يحتوي هذا الدواء على نفس المكون النشط لدواء آخر في قائمتك. تناولهما معًا قد يكون مفرطًا.", fa: "این دارو همان ماده فعال داروی دیگری در لیست شماست. مصرف هر دو ممکن است بیش از حد باشد.", ja: "このお薬はリスト内の別のお薬と同じ有効成分を含んでいます。両方を服用すると過剰になる可能性があります。", ko: "이 약물은 목록의 다른 약물과 동일한 활성 성분을 포함합니다. 둘 다 복용하면 과량일 수 있습니다." },
 };
 
+// Look up a key in the active language, falling back to English, then to the
+// key itself. If vars are given, substitute {placeholder} tokens with them.
 export function translate(lang, key, vars) {
   const entry = D[key];
   let s = (entry && (entry[lang] || entry.en)) || key;

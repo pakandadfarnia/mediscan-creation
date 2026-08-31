@@ -32,6 +32,8 @@ export default function ConfirmForm({ data, imageUrl, onConfirm, onRescan, aller
     { key: "warnings", labelKey: "confirm.f.warnings" },
   ];
 
+  // Local form state. Array fields are flattened to newline-separated strings
+  // for editing and split back into arrays on submit.
   const [form, setForm] = useState(() => {
     const f = { ...data };
     ARRAYS.forEach(({ key }) => {
@@ -45,7 +47,7 @@ export default function ConfirmForm({ data, imageUrl, onConfirm, onRescan, aller
 
   // Re-translate the editable fields when the language changes while on this
   // page, so frequency, route, purpose, side effects, etc. follow the user's
-  // selected language.
+  // selected language. Only runs when the language actually changes.
   useEffect(() => {
     if (prevLang.current === lang) return;
     prevLang.current = lang;
@@ -72,8 +74,11 @@ export default function ConfirmForm({ data, imageUrl, onConfirm, onRescan, aller
     return () => { cancelled = true; };
   }, [lang]);
 
+  // Update a single form field.
   const set = (k, v) => setForm((s) => ({ ...s, [k]: v }));
 
+  // Submit: split the array fields back into arrays and pass the confirmed med
+  // up to the parent. `done` flags whether to go to the summary table next.
   const submit = (done = false) => {
     const out = { ...form };
     ARRAYS.forEach(({ key }) => {

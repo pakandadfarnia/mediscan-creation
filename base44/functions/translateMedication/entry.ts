@@ -1,16 +1,27 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 
+// Map of supported language codes to full names, passed to the LLM so it knows
+// which language to translate the descriptive fields into.
 const LANG_NAME = {
   en: 'English', es: 'Spanish', fr: 'French', zh: 'Simplified Chinese',
   pt: 'Portuguese', ar: 'Arabic', fa: 'Farsi (Persian)', ja: 'Japanese', ko: 'Korean'
 };
 
+// Backend function: translates the descriptive (non-technical) fields of a
+// medication object into the user's preferred language. Ingredient names and
+// doses are deliberately kept in their standard scientific form so allergy
+// matching and duplicate detection still work on the translated output. Also
+// translates the 'description' field inside any stored drug/food interactions.
+// Called by the Scan, Library, Confirm and detail pages whenever the language
+// differs from English.
 export default async function(req) {
   try {
+    // Authenticate the caller.
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
+    // Validate inputs: a medication object and a supported language code.
     const body = await req.json();
     const medication = body?.medication;
     const language = body?.language;
@@ -21,6 +32,9 @@ export default async function(req) {
       return Response.json({ error: 'A supported language code is required' }, { status: 400 });
     }
 
+    // Ask the LLM to translate only the descriptive fields, keeping technical
+    // identifiers (names, doses, ingredients, category) intact, and to translate
+    // the interaction descriptions while preserving their other fields.
     const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt:
         "You are a medical translation assistant. You are given a JSON object describing a medication, extracted from a product label. " +
@@ -31,6 +45,8 @@ export default async function(req) {
         "Keep the exact same JSON structure and field names. Return only the translated object, with the same fields as the input. " +
         "If the medication has drug_interactions or food_interactions arrays, translate only the 'description' field inside each item into " + LANG_NAME[language] + " (plain, everyday words); keep other_med, ingredient, food, and severity exactly as given.\n\n" +
         "INPUT MEDICATION JSON:\n" + JSON.stringify(medication),
+      // Schema mirrors the medication shape (plus the interaction arrays) so the
+      // model returns a structured object we can merge field-by-field.
       response_json_schema: {
         type: 'object',
         properties: {
@@ -78,9 +94,11 @@ export default async function(req) {
       }
     });
 
-    // Merge: start from the original so untranslated/missing fields are preserved,
-    // then overlay the translated fields the model returned.
+    // The model may return a string or an object; normalize to an object.
     const translated = typeof result === 'string' ? (() => { try { return JSON.parse(result); } catch { return {}; } })() : (result || {});
+
+    // Merge: start from the original so untranslated/missing fields are preserved,
+    // then overlay the translated fields the model actually returned.
     const merged = { ...medication };
     const textFields = ['name', 'generic_name', 'active_ingredients', 'dose', 'form', 'frequency', 'route', 'quantity', 'purpose', 'inactive_ingredients', 'side_effects', 'warnings', 'storage', 'manufacturer', 'expiration_date', 'notes'];
     const hadValue = (v) => v !== undefined && v !== null && v !== '' && !(Array.isArray(v) && v.length === 0);
@@ -96,7 +114,8 @@ export default async function(req) {
     if (translated.category && ['prescription', 'otc', 'supplement'].includes(translated.category)) {
       merged.category = translated.category;
     }
-    // Translate interaction descriptions, preserving names & severity.
+    // Translate interaction descriptions, preserving names & severity by mapping
+    // the translated array back onto the original item-by-item (same order/length).
     for (const arrKey of ['drug_interactions', 'food_interactions']) {
       if (Array.isArray(medication[arrKey]) && Array.isArray(translated[arrKey])) {
         merged[arrKey] = medication[arrKey].map((orig, i) => {

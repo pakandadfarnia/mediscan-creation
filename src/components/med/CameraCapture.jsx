@@ -1,18 +1,24 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Camera, X, RefreshCw, Check } from "lucide-react";
 
+// Full-screen camera overlay. Opens the device camera (preferring the rear
+// camera), lets the user capture a still, review/retake it, then hands the
+// confirmed shot back as a File. Cleans up the camera stream on close.
 export default function CameraCapture({ onCapture, onClose }) {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
-  const [shot, setShot] = useState(null); // data URL preview
+  const [shot, setShot] = useState(null); // data URL preview of the captured still
 
+  // Stop all camera tracks and release the stream.
   const stop = () => {
     streamRef.current?.getTracks?.().forEach((t) => t.stop());
     streamRef.current = null;
   };
 
+  // On mount: request camera access (rear-facing preferred) and play the
+  // preview. Surface a friendly error if permission is denied.
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -45,6 +51,7 @@ export default function CameraCapture({ onCapture, onClose }) {
     };
   }, []);
 
+  // Capture a still from the live video onto a canvas and keep a JPEG preview.
   const snap = () => {
     const video = videoRef.current;
     if (!video) return;
@@ -59,6 +66,7 @@ export default function CameraCapture({ onCapture, onClose }) {
     stop();
   };
 
+  // Discard the current shot and reopen the camera for another try.
   const retake = async () => {
     setShot(null);
     try {
@@ -77,12 +85,14 @@ export default function CameraCapture({ onCapture, onClose }) {
     }
   };
 
+  // Convert the preview data URL to a File and hand it to the parent.
   const confirm = async () => {
     const res = await fetch(shot);
     const blob = await res.blob();
     onCapture(new File([blob], "capture.jpg", { type: "image/jpeg" }));
   };
 
+  // Close the overlay: stop the camera and notify the parent.
   const close = () => {
     stop();
     onClose();

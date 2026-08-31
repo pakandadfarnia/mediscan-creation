@@ -3,11 +3,16 @@ import { Camera, Upload, Loader2 } from "lucide-react";
 import CameraCapture from "./CameraCapture";
 import { useLang } from "@/lib/LanguageProvider";
 
+// The big "scan a medication" card shown on the capture phase. Offers a camera
+// button (opens CameraCapture) and an upload button (hidden file input). While
+// busy, shows the current status text instead of the buttons.
 export default function ScanCard({ onFile, busy, status }) {
   const { t } = useLang();
   const fileRef = useRef(null);
   const [camOpen, setCamOpen] = useState(false);
 
+  // Handle a file chosen via the hidden input: reset the input so the same
+  // file can be picked again, then pass it up.
   const pick = (e) => {
     const file = e.target.files?.[0];
     e.target.value = "";

@@ -3,6 +3,8 @@
 // Matching is keyword based (case-insensitive) on medication name + generic name.
 // Returns flags for each OTC/supplement that has a dangerous interaction with a prescription.
 
+// Each rule pairs a set of OTC/supplement keywords with a set of prescription
+// keywords and a plain-language message shown when both are present.
 const RULES = [
   {
     otc: ["ibuprofen", "advil", "motrin", "naproxen", "aleve", "nsaid", "diclofenac", "ketoprofen", "aspirin", "acetylsalicylic"],
@@ -104,14 +106,21 @@ const RULES = [
 
 const norm = (s) => String(s || "").toLowerCase();
 
+// Check a list of medications for OTC/supplement ↔ prescription interactions
+// using the curated rules above. Returns a flag per matched pair.
 export function checkInteractions(meds) {
   const flags = [];
   if (!Array.isArray(meds) || meds.length < 2) return flags;
 
+  // Split the list into OTC-like items and prescriptions — interactions are
+  // only flagged between these two groups.
   const otcLike = meds.filter((m) => m.category === "otc" || m.category === "supplement");
   const prescriptions = meds.filter((m) => m.category === "prescription");
   if (!otcLike.length || !prescriptions.length) return flags;
 
+  // For each OTC/supplement, build a searchable text blob from its name, generic
+  // name, purpose and inactive ingredients, then test it against every rule's
+  // OTC keywords. On a hit, test each prescription against the rule's Rx keywords.
   for (const otc of otcLike) {
     const otcText = `${norm(otc.name)} ${norm(otc.generic_name)} ${norm(otc.purpose)} ${(otc.inactive_ingredients || []).map(norm).join(" ")}`;
     for (const rule of RULES) {

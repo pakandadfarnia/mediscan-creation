@@ -2,6 +2,7 @@ import React from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/lib/useTheme";
 
+// Header button that flips between dark and light mode (state lives in useTheme).
 export default function ThemeToggle() {
   const { theme, toggle } = useTheme();
   const isDark = theme === "dark";

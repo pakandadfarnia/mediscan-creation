@@ -10,9 +10,13 @@ import { ShieldAlert, Loader2, Check, AlertTriangle } from "lucide-react";
 
 const SEXES = ["male", "female", "other"];
 
+// Profile page: collects the user's personal details, language and text-size
+// preferences, and offers an inline allergy manager. The profile is required
+// before the rest of the app is usable (enforced by ProfileGate). There is a
+// single profile record per user; saving creates or updates it.
 export default function Profile() {
   const { t, lang, setLang, textSize, setTextSize } = useLang();
-  const { refresh } = useProfileGate();
+  const { refresh } = useProfileGate();            // re-checks whether a profile exists
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState({ name: "", sex: "", date_of_birth: "", height: "", weight: "", language: "en" });
   const [allergyCount, setAllergyCount] = useState(0);
@@ -20,6 +24,7 @@ export default function Profile() {
   const [saved, setSaved] = useState(false);
   const [showAllergies, setShowAllergies] = useState(false);
 
+  // Load the existing profile (if any) into the form, and count allergies.
   useEffect(() => {
     ProfileEntity.list().then((list) => {
       const p = list && list[0];
@@ -36,8 +41,11 @@ export default function Profile() {
     Allergy.list().then((l) => setAllergyCount(l.length)).catch(() => {});
   }, []);
 
+  // Update a single form field.
   const set = (k, v) => setForm((s) => ({ ...s, [k]: v }));
 
+  // Save the profile: update if it exists, otherwise create it. Also apply the
+  // chosen language immediately and refresh the profile gate.
   const save = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -57,6 +65,7 @@ export default function Profile() {
     }
   };
 
+  // Delete the profile (after confirmation) and reset the form/gate.
   const resetProfile = async () => {
     if (!window.confirm(t("profile.resetConfirm"))) return;
     if (profile?.id) await ProfileEntity.delete(profile.id);

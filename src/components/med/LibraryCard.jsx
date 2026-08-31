@@ -4,6 +4,7 @@ import { Pill, ShoppingCart, Leaf, Trash2, AlertTriangle, UtensilsCrossed, Ban }
 import { checkAllergies } from "@/../base44/shared/allergyCheck";
 import { useLang } from "@/lib/LanguageProvider";
 
+// Per-category badge styling (color + icon + label key).
 const BADGE = {
   prescription: { cls: "bg-indigo-100 text-indigo-700", icon: Pill, labelKey: "table.catRx" },
   otc: { cls: "bg-amber-100 text-amber-700", icon: ShoppingCart, labelKey: "table.catOtc" },
@@ -12,11 +13,14 @@ const BADGE = {
 
 // One medication in the library, with side effects, interactions and allergy
 // warnings visible inline — no need to open the detail page to see them.
+// Receives already-translated data from the Library page.
 export default function LibraryCard({ med, allergies, onRemove }) {
   const { t } = useLang();
   const cat = med.category || "prescription";
   const b = BADGE[cat] || BADGE.prescription;
   const Icon = b.icon;
+  // Cross-check the (translated) med against the user's allergies — ingredient
+  // names are kept standard by the translator, so matching still works.
   const allergyFlags = allergies?.length ? checkAllergies(med, allergies) : [];
   const hasAllergy = allergyFlags.length > 0;
   const dd = med.drug_interactions || [];
@@ -24,6 +28,7 @@ export default function LibraryCard({ med, allergies, onRemove }) {
   const hasDD = dd.length > 0;
   const sideEffects = med.side_effects || [];
 
+  // Color the card border by the most severe issue: allergy (red) > interaction (amber) > none.
   const cardTone = hasAllergy
     ? "border-red-300 ring-1 ring-red-200"
     : hasDD

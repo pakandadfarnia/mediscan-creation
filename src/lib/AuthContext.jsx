@@ -1,3 +1,7 @@
+// Auth context: tracks the signed-in user and the app's public settings. On
+// mount it checks whether the app requires auth and whether the current token
+// belongs to a registered user, then exposes that state (plus logout/login
+// helpers) to the rest of the app via the useAuth hook.
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
@@ -18,6 +22,8 @@ export const AuthProvider = ({ children }) => {
     checkAppState();
   }, []);
 
+  // On mount: load the app's public settings, then (if a token exists) verify
+  // the user's session. Sets loading/error state used by the router.
   const checkAppState = async () => {
     try {
       setIsLoadingPublicSettings(true);
@@ -89,6 +95,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Verify the current session by asking the SDK for the logged-in user.
   const checkUserAuth = async () => {
     try {
       // Now check if the user is authenticated
@@ -114,6 +121,8 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Log out: clears local state and delegates token cleanup + redirect to the
+  // SDK. Passes the current URL so the user returns here after logging back in.
   const logout = (shouldRedirect = true) => {
     setUser(null);
     setIsAuthenticated(false);
@@ -127,6 +136,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Redirect to the app's login page, remembering where to return afterwards.
   const navigateToLogin = () => {
     // Use the SDK's redirectToLogin method
     base44.auth.redirectToLogin(window.location.href);

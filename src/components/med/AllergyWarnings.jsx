@@ -3,10 +3,15 @@ import { AlertTriangle, Ban } from "lucide-react";
 import { checkAllergies } from "@/../base44/shared/allergyCheck";
 import { useLang } from "@/lib/LanguageProvider";
 
+// Severity label keys for the badges shown next to each match.
 const SEV_LABEL = { mild: "allergies.sevMild", moderate: "allergies.sevModerate", severe: "allergies.sevSevere" };
 
+// Shows a red alert when a medication's ingredients match the user's saved
+// allergies, listing each match (allergen → ingredient, source, severity,
+// reaction) and a "do not take without consulting a physician" banner.
 export default function AllergyWarnings({ med, allergies }) {
   const { t } = useLang();
+  // Cross-check the med's ingredients against the user's allergies.
   const matches = checkAllergies(med, allergies);
   if (!matches.length) return null;
   return (

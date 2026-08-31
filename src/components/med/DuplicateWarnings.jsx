@@ -3,6 +3,9 @@ import { AlertTriangle } from "lucide-react";
 import { checkDuplicates } from "@/../base44/shared/duplicateCheck";
 import { useLang } from "@/lib/LanguageProvider";
 
+// Warns when a medication shares an active ingredient with another medication
+// on the user's list (risk of accidental double-dosing). Lists each shared
+// ingredient and the other medications that contain it.
 export default function DuplicateWarnings({ med, others }) {
   const { t } = useLang();
   const flags = checkDuplicates(med, others);

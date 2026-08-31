@@ -16,8 +16,14 @@ import { checkAllergies } from "@/../base44/shared/allergyCheck";
 import { getScanSession, updateScanSession, clearScanSession } from "@/lib/scanSession";
 import { Plus, X, Camera, Upload, Check, Loader2, Download } from "lucide-react";
 
+// The three stages of the scan flow: taking photos, confirming extracted
+// details, and reviewing the summary table before saving to the library.
 const PHASE = { CAPTURE: "capture", CONFIRM: "confirm", SUMMARY: "summary" };
 
+// Scan page: the app's home. Guides the user through capturing one or more
+// photos of a medication label, extracting its data with the analyzeMedication
+// backend function, confirming/editing the details, and finally saving the
+// batch to the local library (after running allergy + interaction checks).
 export default function Scan() {
   const { t, lang } = useLang();
   const navigate = useNavigate();
@@ -36,6 +42,9 @@ export default function Scan() {
   const [library, setLibrary] = useState([]);
   const [profileName, setProfileName] = useState("");
 
+  // Load the user's allergies, existing library and profile name once on
+  // mount — allergies power the inline allergy checks, the library powers
+  // duplicate/interaction checks, and the profile name labels the PDF export.
   useEffect(() => {
     Allergy.list().then(setAllergies).catch(() => {});
     Medication.list("-created_date").then(setLibrary).catch(() => {});
@@ -75,10 +84,15 @@ export default function Scan() {
     return () => { cancelled = true; };
   }, [lang, phase]);
 
+  // Add a captured/uploaded photo (with a local preview URL) to the batch.
   const addPhoto = (file) => setPhotos((p) => [...p, { file, preview: URL.createObjectURL(file) }]);
+  // Remove a photo from the batch and free its preview URL.
   const removePhoto = (i) =>
     setPhotos((p) => { URL.revokeObjectURL(p[i].preview); return p.filter((_, idx) => idx !== i); });
 
+  // Upload all photos, then call analyzeMedication to extract the medication
+  // data. If the user's language isn't English, translate the result before
+  // showing the confirm form. Surfaces a specific failure reason on error.
   const analyze = async () => {
     setError("");
     setBusy(true);
@@ -117,6 +131,8 @@ export default function Scan() {
     setBusy(false);
   };
 
+  // Clear the current capture (photos + extracted data) and return to the
+  // capture phase, freeing the preview URLs.
   const resetCapture = () => {
     photos.forEach((p) => URL.revokeObjectURL(p.preview));
     setPhotos([]);
@@ -126,12 +142,17 @@ export default function Scan() {
     setPhase(PHASE.CAPTURE);
   };
 
+  // Called by the confirm form: add the confirmed med to the batch, reset the
+  // capture, and (if "Done") jump to the summary table.
   const onConfirm = (med, done) => {
     setMeds((m) => [...m, { ...med, image_url: extractedImage }]);
     resetCapture();
     if (done) setPhase(PHASE.SUMMARY);
   };
 
+  // Save every confirmed med to the local library. For each one we compute
+  // allergy warnings, then ask checkInteractions (in the user's language) for
+  // drug/food interactions against the rest of the list, and persist it all.
   const saveAll = async () => {
     setSaving(true);
     const allOthers = [...library, ...meds];
@@ -156,6 +177,7 @@ export default function Scan() {
     navigate("/library");
   };
 
+  // Export the current batch as a localized PDF in the chosen language.
   const exportPdf = async (forLang) => {
     const file = forLang === "en" ? "medications_en.pdf" : `medications_${forLang}.pdf`;
     await downloadMedicationsPdf(meds, forLang, profileName, file);

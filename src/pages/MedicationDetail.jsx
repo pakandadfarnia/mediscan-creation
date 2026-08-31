@@ -10,15 +10,19 @@ import ReadAloudButton from "@/components/med/ReadAloudButton";
 import { medicationSpokenText } from "@/lib/spokenText";
 import { base44 } from "@/api/base44Client";
 
+// Medication detail page: shows one medication's full info table plus a live
+// safety panel. Translates the descriptive fields into the user's language for
+// display while keeping the original record for allergy/interaction matching.
 export default function MedicationDetail() {
   const { t, lang } = useLang();
   const id = new URLSearchParams(window.location.search).get("id");
-  const [med, setMed] = useState(undefined);
-  const [displayMed, setDisplayMed] = useState(null);
+  const [med, setMed] = useState(undefined);       // raw record (for safety checks)
+  const [displayMed, setDisplayMed] = useState(null); // translated record (for display)
   const [translating, setTranslating] = useState(false);
   const [allergies, setAllergies] = useState([]);
-  const [library, setLibrary] = useState([]);
+  const [library, setLibrary] = useState([]);      // other meds, for interaction checks
 
+  // Load the medication, the user's allergies, and the rest of the library.
   useEffect(() => {
     if (!id) return setMed(null);
     Medication.get(id).then(setMed).catch(() => setMed(null));

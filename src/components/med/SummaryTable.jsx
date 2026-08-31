@@ -1,6 +1,8 @@
 import React from "react";
 import { useLang } from "@/lib/LanguageProvider";
 
+// Columns shown in the summary table (key = med field, labelKey = i18n header).
+// `badge` renders the value as a colored category pill; `array` renders a list.
 const COLS = [
   { key: "name", labelKey: "table.name" },
   { key: "category", labelKey: "table.category", badge: true },
@@ -11,6 +13,7 @@ const COLS = [
   { key: "warnings", labelKey: "table.warnings", array: true },
 ];
 
+// Color per category for the badge cells.
 const BADGE = {
   prescription: "bg-indigo-100 text-indigo-700",
   otc: "bg-amber-100 text-amber-700",
@@ -18,6 +21,7 @@ const BADGE = {
 };
 const CAT_KEY = { prescription: "table.catRx", otc: "table.catOtc", supplement: "table.catSupp" };
 
+// Renders the captured medications as a localized, horizontally-scrollable table.
 export default function SummaryTable({ meds }) {
   const { t } = useLang();
   return (
