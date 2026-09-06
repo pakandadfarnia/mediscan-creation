@@ -35,27 +35,27 @@ export default function LibraryAlarmManager({ medId, profileId, alarms, onChange
   const list = alarms || [];
 
   return (
-    <div className="mt-3">
-      <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-stone-500">
-        <AlarmClock className="h-3.5 w-3.5" /> {t("confirm.f.alarmTimes")}
+    <div className="mt-4 border-t border-stone-100 pt-3">
+      <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-stone-500">
+        <AlarmClock className="h-4 w-4" /> {t("confirm.f.alarmTimes")}
       </div>
 
       {list.length > 0 && (
-        <div className="mt-1.5 flex flex-wrap gap-2">
+        <div className="mt-2 flex flex-wrap gap-2">
           {list.map((a) => (
-            <div key={a.id} className="flex items-center gap-1 rounded-full border border-stone-200 bg-white pl-2.5 pr-1">
+            <div key={a.id} className="flex items-center gap-1 rounded-full border border-stone-200 bg-white pl-3 pr-1">
               <input
                 type="time"
                 value={a.time || ""}
                 onChange={(e) => updateTime(a.id, e.target.value)}
-                className="bg-transparent py-1 text-sm text-stone-700 focus:outline-none"
+                className="bg-transparent py-1.5 text-sm text-stone-700 focus:outline-none"
               />
               <button
                 onClick={() => remove(a.id)}
                 className="rounded-full p-1 text-stone-400 hover:bg-stone-100 hover:text-red-500"
                 title={t("confirmDelete.remove")}
               >
-                <X className="h-3.5 w-3.5" />
+                <X className="h-4 w-4" />
               </button>
             </div>
           ))}
@@ -65,9 +65,9 @@ export default function LibraryAlarmManager({ medId, profileId, alarms, onChange
       <button
         onClick={add}
         disabled={busy}
-        className="mt-1.5 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline disabled:opacity-60"
+        className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-primary/10 px-4 py-3 text-sm font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-60"
       >
-        {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />} {t("confirm.addTime")}
+        {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} {t("confirm.addTime")}
       </button>
     </div>
   );

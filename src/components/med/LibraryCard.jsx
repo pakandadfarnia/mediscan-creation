@@ -79,8 +79,6 @@ export default function LibraryCard({ med, allergies, onRemove, interactionFlags
       </div>
       {med.purpose && <p className="mt-1 text-sm text-stone-600"><span className="font-medium">{t("table.purpose")}:</span> {med.purpose}</p>}
 
-      <LibraryAlarmManager medId={med.id} profileId={profileId} alarms={alarms} onChange={onAlarmsChange} />
-
       {hasAllergy && (
         <div className="mt-3 space-y-2">
           <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
@@ -140,6 +138,8 @@ export default function LibraryCard({ med, allergies, onRemove, interactionFlags
           </ul>
         </div>
       )}
+
+      <LibraryAlarmManager medId={med.id} profileId={profileId} alarms={alarms} onChange={onAlarmsChange} />
     </div>
   );
 }
