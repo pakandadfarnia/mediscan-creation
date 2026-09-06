@@ -10,6 +10,9 @@ import { useLang } from "@/lib/LanguageProvider";
 export default function OtcAlternativeWarning({ item }) {
   const { t } = useLang();
   if (!item || !item.otc_med || !item.rx_med) return null;
+  // Treat empty / "none" / "n/a" placeholders as "no real alternative".
+  const alt = (item.otc_alternative || "").trim();
+  const hasAlt = alt && !/^(none|n\/a|nil|-)$/i.test(alt);
   return (
     <div className="rounded-2xl border-2 border-red-600 bg-red-600 p-5 text-white shadow-lg">
       <div className="flex items-center gap-3">
@@ -20,10 +23,14 @@ export default function OtcAlternativeWarning({ item }) {
         </div>
       </div>
       {item.description && <p className="mt-3 text-sm font-medium">{item.description}</p>}
-      {item.otc_alternative && (
+      {hasAlt ? (
         <div className="mt-3 rounded-xl bg-white/15 p-3 text-sm">
           <p className="font-semibold">{t("safety.otcAltTitle")}</p>
-          <p className="mt-0.5">{t("safety.otcAltMsg", { alt: item.otc_alternative })}</p>
+          <p className="mt-0.5">{t("safety.otcAltMsg", { alt: alt })}</p>
+        </div>
+      ) : (
+        <div className="mt-3 rounded-xl bg-white/15 p-3 text-sm font-medium">
+          {t("safety.otcNoAlt", { otc: item.otc_med })}
         </div>
       )}
     </div>
