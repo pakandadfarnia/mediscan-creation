@@ -7,6 +7,8 @@ import { useLang } from "@/lib/LanguageProvider";
 import { useProfileGate } from "@/lib/ProfileContext";
 import { LANGS } from "@/lib/i18n";
 import { ShieldAlert, Loader2, Check, AlertTriangle } from "lucide-react";
+import ConfirmDeleteDialog from "@/components/med/ConfirmDeleteDialog";
+import { useMember } from "@/lib/MemberContext";
 
 const SEXES = ["male", "female", "other"];
 
@@ -17,6 +19,8 @@ const SEXES = ["male", "female", "other"];
 export default function Profile() {
   const { t, lang, setLang, textSize, setTextSize } = useLang();
   const { refresh } = useProfileGate();            // re-checks whether a profile exists
+  const { activeMember } = useMember();            // active household profile
+  const [confirmReset, setConfirmReset] = useState(false);
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState({ name: "", sex: "", date_of_birth: "", height: "", weight: "", language: "en" });
   const [allergyCount, setAllergyCount] = useState(0);
@@ -38,8 +42,8 @@ export default function Profile() {
         language: p?.language || "en",
       });
     }).catch(() => setProfile({}));
-    Allergy.list().then((l) => setAllergyCount(l.length)).catch(() => {});
-  }, []);
+    Allergy.filter({ profile_id: activeMember?.id }).then((l) => setAllergyCount(l.length)).catch(() => {});
+  }, [activeMember?.id]);
 
   // Update a single form field.
   const set = (k, v) => setForm((s) => ({ ...s, [k]: v }));
@@ -67,7 +71,7 @@ export default function Profile() {
 
   // Delete the profile (after confirmation) and reset the form/gate.
   const resetProfile = async () => {
-    if (!window.confirm(t("profile.resetConfirm"))) return;
+    setConfirmReset(false);
     if (profile?.id) await ProfileEntity.delete(profile.id);
     setProfile({});
     setForm({ name: "", sex: "", date_of_birth: "", height: "", weight: "", language: "en" });
@@ -195,20 +199,25 @@ export default function Profile() {
             {t("profile.manage")}
           </button>
         </div>
-        {showAllergies && <AllergyManager onChange={(n) => setAllergyCount(n)} />}
+        {showAllergies && <AllergyManager onChange={(n) => setAllergyCount(n)} profileId={activeMember?.id} />}
       </div>
 
       {profile?.id && (
         <div className="mt-6">
           <button
             type="button"
-            onClick={resetProfile}
+            onClick={() => setConfirmReset(true)}
             className="text-sm font-medium text-red-600 hover:underline"
           >
             {t("profile.reset")}
           </button>
         </div>
       )}
+      <ConfirmDeleteDialog
+        open={confirmReset}
+        onConfirm={resetProfile}
+        onCancel={() => setConfirmReset(false)}
+      />
     </div>
   );
 }

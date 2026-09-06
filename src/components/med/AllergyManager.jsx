@@ -3,13 +3,15 @@ import { Allergy } from "@/lib/localDb";
 import { ShieldAlert, Trash2 } from "lucide-react";
 import { useLang } from "@/lib/LanguageProvider";
 import AllergyEntryForm from "@/components/med/AllergyEntryForm";
+import ConfirmDeleteDialog from "@/components/med/ConfirmDeleteDialog";
 
 // Inline allergy manager — lets you add/remove allergies without leaving the
 // page, so it works during first-run profile creation (when navigating to
 // /allergies would be blocked by the profile gate).
-export default function AllergyManager({ onChange }) {
+export default function AllergyManager({ onChange, profileId }) {
   const { t } = useLang();
   const [list, setList] = useState(null);
+  const [confirmId, setConfirmId] = useState(null);
 
   const SEV_STYLE = {
     mild: "bg-emerald-100 text-emerald-700",
@@ -18,17 +20,18 @@ export default function AllergyManager({ onChange }) {
   };
 
   const load = async () => {
-    const l = await Allergy.list();
+    const l = profileId ? await Allergy.filter({ profile_id: profileId }) : await Allergy.list();
     setList(l);
     onChange?.(l.length);
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [profileId]);
 
-  const remove = async (id) => { await Allergy.delete(id); load(); };
+  // Delete an allergy (after confirmation) and refresh the list.
+  const remove = async (id) => { await Allergy.delete(id); setConfirmId(null); load(); };
 
   return (
     <div className="mt-4 space-y-4">
-      <AllergyEntryForm onAdded={load} buttonClass="bg-emerald-600" />
+      <AllergyEntryForm onAdded={load} buttonClass="bg-emerald-600" profileId={profileId} />
 
       {list === null && <p className="text-sm text-stone-400">{t("common.loading")}</p>}
 
@@ -58,13 +61,19 @@ export default function AllergyManager({ onChange }) {
                   </p>
                 )}
               </div>
-              <button onClick={() => remove(a.id)} className="shrink-0 rounded-full p-1 text-stone-300 hover:text-red-500">
+              <button onClick={() => setConfirmId(a.id)} className="shrink-0 rounded-full p-1 text-stone-300 hover:text-red-500">
                 <Trash2 className="h-4 w-4" />
               </button>
             </div>
           ))}
         </div>
       )}
+
+      <ConfirmDeleteDialog
+        open={!!confirmId}
+        onConfirm={() => confirmId && remove(confirmId)}
+        onCancel={() => setConfirmId(null)}
+      />
     </div>
   );
 }

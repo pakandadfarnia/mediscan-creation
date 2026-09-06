@@ -27,11 +27,18 @@ export default function MedicationDetail() {
   // Load the medication, the user's allergies, and the rest of the library.
   useEffect(() => {
     if (!id) return setMed(null);
-    Medication.get(id).then(setMed).catch(() => setMed(null));
-    Allergy.list().then(setAllergies).catch(() => {});
-    Medication.list("-created_date").then((list) => {
-      setLibrary(list.filter((m) => m.id !== id));
-    }).catch(() => {});
+    Medication.get(id)
+      .then((m) => {
+        setMed(m || null);
+        if (!m) return;
+        // Safety checks are scoped to the profile this medication belongs to.
+        const pid = m.profile_id;
+        Allergy.filter({ profile_id: pid }).then(setAllergies).catch(() => {});
+        Medication.filter({ profile_id: pid }, "-created_date").then((list) => {
+          setLibrary(list.filter((x) => x.id !== id));
+        }).catch(() => {});
+      })
+      .catch(() => setMed(null));
   }, [id]);
 
   // Translate the medication's descriptive details into the user's preferred

@@ -4,8 +4,8 @@
 // required to read or write it after the first visit.
 
 const DB_NAME = "medilens";
-const DB_VERSION = 1;
-const STORES = ["Medication", "Allergy", "Profile"];
+const DB_VERSION = 2;
+const STORES = ["Medication", "Allergy", "Profile", "Member", "Alarm"];
 
 // Cached open-DB promise so we only open the database once per session.
 let dbPromise = null;
@@ -139,6 +139,11 @@ function makeEntity(store) {
 export const Medication = makeEntity("Medication");
 export const Allergy = makeEntity("Allergy");
 export const Profile = makeEntity("Profile");
+// Household profiles (e.g. you, your kids, an elderly parent). Medications,
+// allergies and alarms are each scoped to one profile via `profile_id`.
+export const Member = makeEntity("Member");
+// Medication reminder alarms: one record per reminder time, per medication.
+export const Alarm = makeEntity("Alarm");
 
 // Strip the built-in fields before importing a cloud record, so the local
 // create() can re-stamp its own id/timestamps.

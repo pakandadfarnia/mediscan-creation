@@ -14,8 +14,10 @@ import { useLang } from "@/lib/LanguageProvider";
 import { langName } from "@/lib/i18n";
 import ReadAloudButton from "@/components/med/ReadAloudButton";
 import { summarySpokenText } from "@/lib/spokenText";
-import { Medication, Allergy, Profile } from "@/lib/localDb";
+import { Medication, Allergy, Profile, Alarm } from "@/lib/localDb";
 import { checkAllergies } from "@/lib/allergyCheck";
+import { useMember } from "@/lib/MemberContext";
+import ConfirmDeleteDialog from "@/components/med/ConfirmDeleteDialog";
 import { getScanSession, updateScanSession, clearScanSession } from "@/lib/scanSession";
 import { Plus, X, Camera, Upload, Check, Loader2, Download, WifiOff } from "lucide-react";
 
@@ -44,6 +46,10 @@ export default function Scan() {
   const [allergies, setAllergies] = useState([]);
   const [library, setLibrary] = useState([]);
   const [profileName, setProfileName] = useState("");
+  const [confirmStartOver, setConfirmStartOver] = useState(false);
+  // Active household profile: medications, allergies and alarms are scoped to
+  // the member currently selected in the profile switcher.
+  const { activeMember } = useMember();
   const cartIdRef = useRef(0);
   // OTC ↔ prescription interaction check: fires a prominent modal when a new
   // interacting pair is created by adding a med, and exposes persistent tags
@@ -68,10 +74,11 @@ export default function Scan() {
   // mount — allergies power the inline allergy checks, the library powers
   // duplicate/interaction checks, and the profile name labels the PDF export.
   useEffect(() => {
-    Allergy.list().then(setAllergies).catch(() => {});
-    Medication.list("-created_date").then(setLibrary).catch(() => {});
+    if (!activeMember) return;
+    Allergy.filter({ profile_id: activeMember.id }).then(setAllergies).catch(() => {});
+    Medication.filter({ profile_id: activeMember.id }, "-created_date").then(setLibrary).catch(() => {});
     Profile.list().then((list) => setProfileName((list && list[0]?.name) || "")).catch(() => {});
-  }, []);
+  }, [activeMember?.id]);
 
   // Persist the scan session so navigating away and back keeps your photos
   // and scanned details until you save or start over.
@@ -179,7 +186,7 @@ export default function Scan() {
     setSaving(true);
     const allOthers = [...library, ...meds];
     for (const m of meds) {
-      const { is_medication, ...fields } = m;
+      const { is_medication, alarm_times, ...fields } = m;
       const others = allOthers.filter((x) => x !== m);
       const allergyWarnings = checkAllergies(m, allergies);
       let drug_interactions = [];
@@ -192,7 +199,11 @@ export default function Scan() {
       } catch {
         // offline or failed — store empty; can be refreshed later
       }
-      await Medication.create({ ...fields, allergy_warnings: allergyWarnings, drug_interactions, food_interactions });
+      const rec = await Medication.create({ ...fields, allergy_warnings: allergyWarnings, drug_interactions, food_interactions, profile_id: activeMember?.id });
+      // One scheduled reminder per selected alarm time, tied to this medication.
+      for (const time of (alarm_times || []).filter(Boolean)) {
+        await Alarm.create({ medication_id: rec.id, profile_id: activeMember?.id, time, active: true });
+      }
     }
     setSaving(false);
     clearScanSession();
@@ -254,7 +265,7 @@ export default function Scan() {
 
         <div className="mt-7 flex flex-wrap gap-3">
           <button
-            onClick={() => { setMeds([]); resetCapture(); }}
+            onClick={() => setConfirmStartOver(true)}
             className="rounded-full border border-stone-300 px-5 py-2.5 text-sm font-medium text-stone-700 hover:bg-stone-100"
           >
             {t("scan.startOver")}
@@ -268,6 +279,12 @@ export default function Scan() {
             {saving ? t("common.loading") : t("scan.saveN", { n: meds.length })}
           </button>
         </div>
+
+        <ConfirmDeleteDialog
+          open={confirmStartOver}
+          onConfirm={() => { setMeds([]); resetCapture(); setConfirmStartOver(false); }}
+          onCancel={() => setConfirmStartOver(false)}
+        />
 
         <InteractionModal flag={activeModal} onAcknowledge={acknowledge} />
       </div>

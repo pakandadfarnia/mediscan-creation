@@ -6,6 +6,7 @@ import { Image } from "@/components/ui/image";
 import AllergyWarnings from "./AllergyWarnings";
 import CategoryPicker from "./CategoryPicker";
 import DuplicateWarnings from "./DuplicateWarnings";
+import AlarmTimesField from "./AlarmTimesField";
 import { useLang } from "@/lib/LanguageProvider";
 import { base44 } from "@/api/base44Client";
 import { Loader2 } from "lucide-react";
@@ -42,6 +43,12 @@ export default function ConfirmForm({ data, imageUrl, onConfirm, onRescan, aller
     return f;
   });
 
+  // Optional reminder times the user sets for this medication (one or more
+  // per day). Passed through on confirm; alarms are created when the
+  // medication is saved to the library.
+  const [alarmTimes, setAlarmTimes] = useState(() =>
+    Array.isArray(data?.alarm_times) ? data.alarm_times.filter(Boolean) : []
+  );
   const [translating, setTranslating] = useState(false);
   const prevLang = useRef(lang);
 
@@ -87,6 +94,7 @@ export default function ConfirmForm({ data, imageUrl, onConfirm, onRescan, aller
         .map((s) => s.trim())
         .filter(Boolean);
     });
+    out.alarm_times = alarmTimes.filter(Boolean);
     onConfirm(out, done);
   };
 
@@ -148,6 +156,7 @@ export default function ConfirmForm({ data, imageUrl, onConfirm, onRescan, aller
             />
           </div>
         ))}
+        <AlarmTimesField value={alarmTimes} onChange={setAlarmTimes} />
       </div>
 
       <div className="mt-7 flex flex-wrap items-center justify-between gap-3">

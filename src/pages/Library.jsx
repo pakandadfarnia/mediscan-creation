@@ -7,6 +7,8 @@ import { Search, Pill, Loader2 } from "lucide-react";
 import { useLang } from "@/lib/LanguageProvider";
 import LibraryCard from "@/components/med/LibraryCard";
 import InteractionModal from "@/components/med/InteractionModal";
+import ConfirmDeleteDialog from "@/components/med/ConfirmDeleteDialog";
+import { useMember } from "@/lib/MemberContext";
 import { useInteractionCheck } from "@/lib/useInteractionCheck";
 
 // Library page: lists every saved medication as cards with inline allergy and
@@ -15,6 +17,8 @@ import { useInteractionCheck } from "@/lib/useInteractionCheck";
 // whenever the language changes.
 export default function Library() {
   const { t, lang } = useLang();
+  const { activeMember } = useMember();
+  const [confirmId, setConfirmId] = useState(null); // medication awaiting delete confirmation
   const [meds, setMeds] = useState(null);          // raw records from the DB
   const [displayMeds, setDisplayMeds] = useState(null); // translated records for rendering
   const [translating, setTranslating] = useState(false);
@@ -28,13 +32,14 @@ export default function Library() {
 
   // Load the saved medications and allergies from the local DB.
   const load = async () => {
-    setMeds(await Medication.list("-created_date"));
-    setAllergies(await Allergy.list());
+    if (!activeMember) return;
+    setMeds(await Medication.filter({ profile_id: activeMember.id }, "-created_date"));
+    setAllergies(await Allergy.filter({ profile_id: activeMember.id }));
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [activeMember?.id]);
 
-  // Delete a medication and refresh the list.
-  const remove = async (id) => { await Medication.delete(id); load(); };
+  // Delete a medication (after confirmation) and refresh the list.
+  const remove = async (id) => { await Medication.delete(id); setConfirmId(null); load(); };
 
   // Translate the library's medication info into the user's preferred language
   // so side effects, warnings, purpose, frequency, etc. show translated inline.
@@ -127,11 +132,16 @@ export default function Library() {
       {filtered.length > 0 && (
         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {filtered.map((m) => (
-            <LibraryCard key={m.id} med={m} allergies={allergies} onRemove={remove} interactionFlags={interactionFlags} onInteractionTagClick={reopen} />
+            <LibraryCard key={m.id} med={m} allergies={allergies} onRemove={setConfirmId} interactionFlags={interactionFlags} onInteractionTagClick={reopen} />
           ))}
         </div>
       )}
 
+      <ConfirmDeleteDialog
+        open={!!confirmId}
+        onConfirm={() => confirmId && remove(confirmId)}
+        onCancel={() => setConfirmId(null)}
+      />
       <InteractionModal flag={activeModal} onAcknowledge={acknowledge} />
     </div>
   );

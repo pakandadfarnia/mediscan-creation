@@ -19,6 +19,9 @@ import Library from '@/pages/Library';
 import MedicationDetail from '@/pages/MedicationDetail';
 import Allergies from '@/pages/Allergies';
 import Profile from '@/pages/Profile';
+import Alarms from '@/pages/Alarms';
+import Household from '@/pages/Household';
+import { MemberProvider } from '@/lib/MemberContext';
 import { LanguageProvider } from '@/lib/LanguageProvider';
 import { ProfileProvider } from '@/lib/ProfileContext';
 import ProfileGate from '@/components/ProfileGate';
@@ -62,12 +65,14 @@ const AuthenticatedApp = () => {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/welcome" replace />} />}>
         <Route element={<RememberGate />}>
-        <Route element={<ProfileProvider><ProfileGate /></ProfileProvider>}>
+        <Route element={<MemberProvider><ProfileProvider><ProfileGate /></ProfileProvider></MemberProvider>}>
           <Route element={<MedLayout />}>
             <Route path="/" element={<Scan />} />
             <Route path="/library" element={<Library />} />
             <Route path="/medication" element={<MedicationDetail />} />
             <Route path="/allergies" element={<Allergies />} />
+            <Route path="/alarms" element={<Alarms />} />
+            <Route path="/household" element={<Household />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
         </Route>

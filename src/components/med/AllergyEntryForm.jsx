@@ -8,7 +8,7 @@ import { useLang } from "@/lib/LanguageProvider";
 
 // Shared form for adding an allergy with the reaction it causes and its
 // severity. Used by both the Allergies page and the inline Profile manager.
-export default function AllergyEntryForm({ onAdded, buttonClass = "bg-primary" }) {
+export default function AllergyEntryForm({ onAdded, buttonClass = "bg-primary", profileId }) {
   const { t } = useLang();
   const [name, setName] = useState("");
   const [cat, setCat] = useState("food");
@@ -34,6 +34,7 @@ export default function AllergyEntryForm({ onAdded, buttonClass = "bg-primary" }
       category: cat,
       reaction: reaction.trim(),
       severity,
+      profile_id: profileId,
     });
     setName("");
     setReaction("");
