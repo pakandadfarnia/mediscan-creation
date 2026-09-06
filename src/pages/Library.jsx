@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Medication, Allergy } from "@/lib/localDb";
+import { Medication, Allergy, Alarm } from "@/lib/localDb";
 import { Input } from "@/components/ui/input";
 import { Search, Pill, Loader2 } from "lucide-react";
 import { useLang } from "@/lib/LanguageProvider";
@@ -23,6 +23,7 @@ export default function Library() {
   const [displayMeds, setDisplayMeds] = useState(null); // translated records for rendering
   const [translating, setTranslating] = useState(false);
   const [allergies, setAllergies] = useState([]);
+  const [alarms, setAlarms] = useState([]);         // reminder alarms for the active profile
   const [q, setQ] = useState("");                  // search query
   const [filter, setFilter] = useState("all");    // category filter
   // OTC ↔ prescription interaction check for the saved library. Existing pairs
@@ -35,6 +36,7 @@ export default function Library() {
     if (!activeMember) return;
     setMeds(await Medication.filter({ profile_id: activeMember.id }, "-created_date"));
     setAllergies(await Allergy.filter({ profile_id: activeMember.id }));
+    setAlarms(await Alarm.filter({ profile_id: activeMember.id }));
   };
   useEffect(() => { load(); }, [activeMember?.id]);
 
@@ -132,7 +134,17 @@ export default function Library() {
       {filtered.length > 0 && (
         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {filtered.map((m) => (
-            <LibraryCard key={m.id} med={m} allergies={allergies} onRemove={setConfirmId} interactionFlags={interactionFlags} onInteractionTagClick={reopen} />
+            <LibraryCard
+              key={m.id}
+              med={m}
+              allergies={allergies}
+              onRemove={setConfirmId}
+              interactionFlags={interactionFlags}
+              onInteractionTagClick={reopen}
+              alarms={alarms.filter((a) => a.medication_id === m.id)}
+              onAlarmsChange={load}
+              profileId={activeMember?.id}
+            />
           ))}
         </div>
       )}

@@ -6,6 +6,7 @@ import { useLang } from "@/lib/LanguageProvider";
 import AllergyStopWarning from "@/components/med/AllergyStopWarning";
 import OtcAlternativeWarning from "@/components/med/OtcAlternativeWarning";
 import InteractionTags from "@/components/med/InteractionTags";
+import LibraryAlarmManager from "@/components/med/LibraryAlarmManager";
 
 // Per-category badge styling (color + icon + label key).
 const BADGE = {
@@ -17,7 +18,7 @@ const BADGE = {
 // One medication in the library, with side effects, interactions and allergy
 // warnings visible inline — no need to open the detail page to see them.
 // Receives already-translated data from the Library page.
-export default function LibraryCard({ med, allergies, onRemove, interactionFlags, onInteractionTagClick }) {
+export default function LibraryCard({ med, allergies, onRemove, interactionFlags, onInteractionTagClick, alarms, onAlarmsChange, profileId }) {
   const { t } = useLang();
   const cat = med.category || "prescription";
   const b = BADGE[cat] || BADGE.prescription;
@@ -77,6 +78,8 @@ export default function LibraryCard({ med, allergies, onRemove, interactionFlags
         {med.frequency && <span><span className="font-medium">{t("table.frequency")}:</span> {med.frequency}</span>}
       </div>
       {med.purpose && <p className="mt-1 text-sm text-stone-600"><span className="font-medium">{t("table.purpose")}:</span> {med.purpose}</p>}
+
+      <LibraryAlarmManager medId={med.id} profileId={profileId} alarms={alarms} onChange={onAlarmsChange} />
 
       {hasAllergy && (
         <div className="mt-3 space-y-2">
