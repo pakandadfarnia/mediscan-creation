@@ -5,6 +5,7 @@ import { checkAllergies } from "@/../base44/shared/allergyCheck";
 import { useLang } from "@/lib/LanguageProvider";
 import AllergyStopWarning from "@/components/med/AllergyStopWarning";
 import OtcAlternativeWarning from "@/components/med/OtcAlternativeWarning";
+import InteractionTags from "@/components/med/InteractionTags";
 
 // Per-category badge styling (color + icon + label key).
 const BADGE = {
@@ -16,7 +17,7 @@ const BADGE = {
 // One medication in the library, with side effects, interactions and allergy
 // warnings visible inline — no need to open the detail page to see them.
 // Receives already-translated data from the Library page.
-export default function LibraryCard({ med, allergies, onRemove }) {
+export default function LibraryCard({ med, allergies, onRemove, interactionFlags, onInteractionTagClick }) {
   const { t } = useLang();
   const cat = med.category || "prescription";
   const b = BADGE[cat] || BADGE.prescription;
@@ -70,6 +71,7 @@ export default function LibraryCard({ med, allergies, onRemove }) {
         </div>
       </div>
 
+      <InteractionTags med={med} flags={interactionFlags} onTagClick={onInteractionTagClick} />
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-stone-600">
         {med.dose && <span><span className="font-medium">{t("table.dose")}:</span> {med.dose}</span>}
         {med.frequency && <span><span className="font-medium">{t("table.frequency")}:</span> {med.frequency}</span>}

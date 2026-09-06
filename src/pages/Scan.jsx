@@ -6,7 +6,8 @@ import CameraCapture from "@/components/med/CameraCapture";
 import ConfirmForm from "@/components/med/ConfirmForm";
 import SummaryTable from "@/components/med/SummaryTable";
 import SafetyPanel from "@/components/med/SafetyPanel";
-import InteractionWarnings from "@/components/med/InteractionWarnings";
+import InteractionModal from "@/components/med/InteractionModal";
+import { useInteractionCheck } from "@/lib/useInteractionCheck";
 import { downloadMedicationsPdf } from "@/lib/exportMedications";
 import { useLang } from "@/lib/LanguageProvider";
 import { langName } from "@/lib/i18n";
@@ -42,6 +43,11 @@ export default function Scan() {
   const [allergies, setAllergies] = useState([]);
   const [library, setLibrary] = useState([]);
   const [profileName, setProfileName] = useState("");
+  const cartIdRef = useRef(0);
+  // OTC ↔ prescription interaction check: fires a prominent modal when a new
+  // interacting pair is created by adding a med, and exposes persistent tags
+  // for each interacting med. Re-evaluates only when the cart list changes.
+  const { flags: interactionFlags, activeModal, acknowledge, reopen } = useInteractionCheck(meds);
 
   // Load the user's allergies, existing library and profile name once on
   // mount — allergies power the inline allergy checks, the library powers
@@ -146,7 +152,7 @@ export default function Scan() {
   // Called by the confirm form: add the confirmed med to the batch, reset the
   // capture, and (if "Done") jump to the summary table.
   const onConfirm = (med, done) => {
-    setMeds((m) => [...m, { ...med, image_url: extractedImage }]);
+    setMeds((m) => [...m, { ...med, image_url: extractedImage, _cartId: ++cartIdRef.current }]);
     resetCapture();
     if (done) setPhase(PHASE.SUMMARY);
   };
@@ -204,14 +210,9 @@ export default function Scan() {
 
         <div className="mt-6">
           <h3 className="mb-3 text-sm font-medium uppercase tracking-wider text-stone-500">{t("scan.safetySection")}</h3>
-          {meds.length > 1 && (
-            <div className="mb-3">
-              <InteractionWarnings meds={meds} showAllClear={false} />
-            </div>
-          )}
           <div className="space-y-3">
             {meds.map((m, i) => (
-              <SafetyPanel key={i} med={m} others={[...library, ...meds.filter((x) => x !== m)]} allergies={allergies} />
+              <SafetyPanel key={i} med={m} others={[...library, ...meds.filter((x) => x !== m)]} allergies={allergies} interactionFlags={interactionFlags} onInteractionTagClick={reopen} />
             ))}
           </div>
         </div>
@@ -252,6 +253,8 @@ export default function Scan() {
             {saving ? t("common.loading") : t("scan.saveN", { n: meds.length })}
           </button>
         </div>
+
+        <InteractionModal flag={activeModal} onAcknowledge={acknowledge} />
       </div>
     );
   }

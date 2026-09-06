@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { checkAllergies } from "@/../base44/shared/allergyCheck";
 import { checkDuplicates } from "@/../base44/shared/duplicateCheck";
 import OtcAlternativeWarning from "@/components/med/OtcAlternativeWarning";
+import InteractionTags from "@/components/med/InteractionTags";
 import { useLang } from "@/lib/LanguageProvider";
 import { ShieldCheck, Loader2, AlertTriangle, CheckCircle2, Ban } from "lucide-react";
 
@@ -10,7 +11,7 @@ import { ShieldCheck, Loader2, AlertTriangle, CheckCircle2, Ban } from "lucide-r
 // drug-drug and drug-food checks for one medication. Allergy and duplicate
 // checks run locally (instant); drug/food interactions are fetched from the
 // checkInteractions backend function in the user's language.
-export default function SafetyPanel({ med, others, allergies }) {
+export default function SafetyPanel({ med, others, allergies, interactionFlags, onInteractionTagClick }) {
   const { t, lang } = useLang();
   const [inter, setInter] = useState(null);  // LLM drug/food interaction results
   const [loading, setLoading] = useState(true);
@@ -76,6 +77,7 @@ export default function SafetyPanel({ med, others, allergies }) {
         </div>
         <span className="truncate text-xs font-medium text-stone-400">{med.name}</span>
       </div>
+      <InteractionTags med={med} flags={interactionFlags} onTagClick={onInteractionTagClick} />
 
       {loading ? (
         <div className="mt-3 flex items-center gap-2 text-sm text-stone-500">

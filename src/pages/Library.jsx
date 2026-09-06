@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Search, Pill, Loader2 } from "lucide-react";
 import { useLang } from "@/lib/LanguageProvider";
 import LibraryCard from "@/components/med/LibraryCard";
-import InteractionWarnings from "@/components/med/InteractionWarnings";
+import InteractionModal from "@/components/med/InteractionModal";
+import { useInteractionCheck } from "@/lib/useInteractionCheck";
 
 // Library page: lists every saved medication as cards with inline allergy and
 // interaction warnings. Translates all medication info (including stored
@@ -20,6 +21,10 @@ export default function Library() {
   const [allergies, setAllergies] = useState([]);
   const [q, setQ] = useState("");                  // search query
   const [filter, setFilter] = useState("all");    // category filter
+  // OTC ↔ prescription interaction check for the saved library. Existing pairs
+  // on load are recorded as seen (no modal), so only persistent tags show;
+  // tapping a tag re-opens the full warning modal.
+  const { flags: interactionFlags, activeModal, acknowledge, reopen } = useInteractionCheck(displayMeds || [], { enabled: !!displayMeds });
 
   // Load the saved medications and allergies from the local DB.
   const load = async () => {
@@ -109,12 +114,6 @@ export default function Library() {
 
       {meds === null && <p className="mt-10 text-sm text-stone-400">{t("common.loading")}</p>}
 
-      {displayMeds && displayMeds.length > 1 && (
-        <div className="mt-6">
-          <InteractionWarnings meds={displayMeds} showAllClear={false} />
-        </div>
-      )}
-
       {meds !== null && filtered.length === 0 && (
         <div className="mt-10 rounded-3xl border border-dashed border-stone-300 p-12 text-center">
           <Pill className="mx-auto h-8 w-8 text-stone-300" />
@@ -128,10 +127,12 @@ export default function Library() {
       {filtered.length > 0 && (
         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {filtered.map((m) => (
-            <LibraryCard key={m.id} med={m} allergies={allergies} onRemove={remove} />
+            <LibraryCard key={m.id} med={m} allergies={allergies} onRemove={remove} interactionFlags={interactionFlags} onInteractionTagClick={reopen} />
           ))}
         </div>
       )}
+
+      <InteractionModal flag={activeModal} onAcknowledge={acknowledge} />
     </div>
   );
 }
