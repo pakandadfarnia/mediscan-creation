@@ -6,7 +6,7 @@ import { ArrowLeft, Loader2, AlertOctagon } from "lucide-react";
 import InfoTable from "@/components/med/InfoTable";
 import SafetyPanel from "@/components/med/SafetyPanel";
 import AllergyStopWarning from "@/components/med/AllergyStopWarning";
-import { checkAllergies } from "@/../base44/shared/allergyCheck";
+import { checkAllergies } from "@/lib/allergyCheck";
 import { useLang } from "@/lib/LanguageProvider";
 import ReadAloudButton from "@/components/med/ReadAloudButton";
 import { medicationSpokenText } from "@/lib/spokenText";

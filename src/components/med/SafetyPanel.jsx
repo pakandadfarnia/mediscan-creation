@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { checkAllergies } from "@/../base44/shared/allergyCheck";
-import { checkDuplicates } from "@/../base44/shared/duplicateCheck";
+import { checkAllergies } from "@/lib/allergyCheck";
+import { checkDuplicates } from "@/lib/duplicateCheck";
 import OtcAlternativeWarning from "@/components/med/OtcAlternativeWarning";
 import InteractionTags from "@/components/med/InteractionTags";
 import { useLang } from "@/lib/LanguageProvider";

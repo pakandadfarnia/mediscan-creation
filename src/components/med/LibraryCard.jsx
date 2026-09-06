@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Pill, ShoppingCart, Leaf, Trash2, AlertTriangle, UtensilsCrossed, AlertOctagon } from "lucide-react";
-import { checkAllergies } from "@/../base44/shared/allergyCheck";
+import { checkAllergies } from "@/lib/allergyCheck";
 import { useLang } from "@/lib/LanguageProvider";
 import AllergyStopWarning from "@/components/med/AllergyStopWarning";
 import OtcAlternativeWarning from "@/components/med/OtcAlternativeWarning";

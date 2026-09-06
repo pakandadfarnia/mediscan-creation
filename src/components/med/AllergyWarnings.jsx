@@ -1,6 +1,6 @@
 import React from "react";
 import { AlertTriangle, Ban } from "lucide-react";
-import { checkAllergies } from "@/../base44/shared/allergyCheck";
+import { checkAllergies } from "@/lib/allergyCheck";
 import { useLang } from "@/lib/LanguageProvider";
 
 // Severity label keys for the badges shown next to each match.

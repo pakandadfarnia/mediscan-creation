@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import ScanCard from "@/components/med/ScanCard";
 import CameraCapture from "@/components/med/CameraCapture";
+import OfflineDrugSearch from "@/components/med/OfflineDrugSearch";
 import ConfirmForm from "@/components/med/ConfirmForm";
 import SummaryTable from "@/components/med/SummaryTable";
 import SafetyPanel from "@/components/med/SafetyPanel";
@@ -14,9 +15,9 @@ import { langName } from "@/lib/i18n";
 import ReadAloudButton from "@/components/med/ReadAloudButton";
 import { summarySpokenText } from "@/lib/spokenText";
 import { Medication, Allergy, Profile } from "@/lib/localDb";
-import { checkAllergies } from "@/../base44/shared/allergyCheck";
+import { checkAllergies } from "@/lib/allergyCheck";
 import { getScanSession, updateScanSession, clearScanSession } from "@/lib/scanSession";
-import { Plus, X, Camera, Upload, Check, Loader2, Download } from "lucide-react";
+import { Plus, X, Camera, Upload, Check, Loader2, Download, WifiOff } from "lucide-react";
 
 // The three stages of the scan flow: taking photos, confirming extracted
 // details, and reviewing the summary table before saving to the library.
@@ -48,6 +49,20 @@ export default function Scan() {
   // interacting pair is created by adding a med, and exposes persistent tags
   // for each interacting med. Re-evaluates only when the cart list changes.
   const { flags: interactionFlags, activeModal, acknowledge, reopen } = useInteractionCheck(meds);
+
+  // Track connectivity. Photo analysis needs the internet, so when the device
+  // goes offline the scan flow falls back to the built-in drug guide.
+  const [online, setOnline] = useState(navigator.onLine);
+  useEffect(() => {
+    const on = () => setOnline(true);
+    const off = () => setOnline(false);
+    window.addEventListener("online", on);
+    window.addEventListener("offline", off);
+    return () => {
+      window.removeEventListener("online", on);
+      window.removeEventListener("offline", off);
+    };
+  }, []);
 
   // Load the user's allergies, existing library and profile name once on
   // mount — allergies power the inline allergy checks, the library powers
@@ -269,6 +284,39 @@ export default function Scan() {
         onConfirm={onConfirm}
         onRescan={resetCapture}
       />
+    );
+  }
+
+  // Offline: photo analysis is impossible, so replace the camera flow with the
+  // built-in drug guide. Picking a medication prefills the same confirm form.
+  if (!online && phase === PHASE.CAPTURE) {
+    return (
+      <div>
+        {meds.length > 0 && (
+          <div className="mb-5 flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
+            <Check className="h-4 w-4" />
+            {t("scan.addedSoFar", { n: meds.length })}
+            <button onClick={() => setPhase(PHASE.SUMMARY)} className="ml-auto font-medium underline">
+              {t("scan.viewTable")}
+            </button>
+          </div>
+        )}
+        <div className="rounded-2xl border border-amber-300 bg-amber-50 p-5">
+          <div className="flex items-center gap-2 font-heading text-lg font-semibold text-amber-900">
+            <WifiOff className="h-5 w-5" /> {t("offline.bannerTitle")}
+          </div>
+          <p className="mt-1 text-sm text-amber-800">{t("offline.bannerDesc")}</p>
+        </div>
+        <div className="mt-6">
+          <OfflineDrugSearch
+            onSelect={(drug) => {
+              setExtracted(drug);
+              setExtractedImage("");
+              setPhase(PHASE.CONFIRM);
+            }}
+          />
+        </div>
+      </div>
     );
   }
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { AlertTriangle } from "lucide-react";
-import { checkDuplicates } from "@/../base44/shared/duplicateCheck";
+import { checkDuplicates } from "@/lib/duplicateCheck";
 import { useLang } from "@/lib/LanguageProvider";
 
 // Warns when a medication shares an active ingredient with another medication
