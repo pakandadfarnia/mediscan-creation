@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Search, Pill, Loader2 } from "lucide-react";
 import { useLang } from "@/lib/LanguageProvider";
 import LibraryCard from "@/components/med/LibraryCard";
+import InteractionWarnings from "@/components/med/InteractionWarnings";
 
 // Library page: lists every saved medication as cards with inline allergy and
 // interaction warnings. Translates all medication info (including stored
@@ -107,6 +108,12 @@ export default function Library() {
       </div>
 
       {meds === null && <p className="mt-10 text-sm text-stone-400">{t("common.loading")}</p>}
+
+      {displayMeds && displayMeds.length > 1 && (
+        <div className="mt-6">
+          <InteractionWarnings meds={displayMeds} showAllClear={false} />
+        </div>
+      )}
 
       {meds !== null && filtered.length === 0 && (
         <div className="mt-10 rounded-3xl border border-dashed border-stone-300 p-12 text-center">

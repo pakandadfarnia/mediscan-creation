@@ -1,12 +1,14 @@
 import React from "react";
-import { AlertTriangle, ShieldAlert, ShieldCheck } from "lucide-react";
+import { AlertTriangle, ShieldAlert, ShieldCheck, Lightbulb } from "lucide-react";
 import { checkInteractions } from "@/../base44/shared/interactions";
 
 // Shows OTC/supplement ↔ prescription interaction warnings using the curated
-// client-side rule set (base44/shared/interactions). If there are none but the
-// mix could have interactions (both OTC-like and Rx present), shows a
-// reassuring "no known interactions" message.
-export default function InteractionWarnings({ meds }) {
+// client-side rule set (base44/shared/interactions). For each clash, when a
+// safer over-the-counter option is known it is shown inline. If there are no
+// clashes but the mix could have interactions (both OTC-like and Rx present),
+// shows a reassuring "no known interactions" message — unless `showAllClear`
+// is false, in which case it renders nothing.
+export default function InteractionWarnings({ meds, showAllClear = true }) {
   const flags = checkInteractions(meds);
   if (!flags.length) {
     // Only show the all-clear when there's at least one OTC-like and one Rx med.
@@ -14,6 +16,7 @@ export default function InteractionWarnings({ meds }) {
     const hasOtc = meds.some((m) => m.category === "otc" || m.category === "supplement");
     const hasRx = meds.some((m) => m.category === "prescription");
     if (!hasOtc || !hasRx) return null;
+    if (!showAllClear) return null;
     return (
       <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
         <div className="flex items-center gap-2 text-emerald-700">
@@ -47,6 +50,12 @@ export default function InteractionWarnings({ meds }) {
             <span>
               <span className="font-semibold">{f.otc}</span> + <span className="font-semibold">{f.prescription}</span>
               <span className="block text-red-600">{f.message}</span>
+              {f.alternative && (
+                <span className="mt-2 flex items-start gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 p-2 text-emerald-800">
+                  <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                  <span><span className="font-semibold">Safer OTC option: </span>{f.alternative}</span>
+                </span>
+              )}
             </span>
           </li>
         ))}
@@ -56,6 +65,12 @@ export default function InteractionWarnings({ meds }) {
             <span>
               <span className="font-semibold">{f.otc}</span> + <span className="font-semibold">{f.prescription}</span>
               <span className="block text-amber-600">{f.message}</span>
+              {f.alternative && (
+                <span className="mt-2 flex items-start gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 p-2 text-emerald-800">
+                  <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                  <span><span className="font-semibold">Safer OTC option: </span>{f.alternative}</span>
+                </span>
+              )}
             </span>
           </li>
         ))}

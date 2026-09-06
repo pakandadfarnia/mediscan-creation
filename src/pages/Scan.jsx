@@ -6,6 +6,7 @@ import CameraCapture from "@/components/med/CameraCapture";
 import ConfirmForm from "@/components/med/ConfirmForm";
 import SummaryTable from "@/components/med/SummaryTable";
 import SafetyPanel from "@/components/med/SafetyPanel";
+import InteractionWarnings from "@/components/med/InteractionWarnings";
 import { downloadMedicationsPdf } from "@/lib/exportMedications";
 import { useLang } from "@/lib/LanguageProvider";
 import { langName } from "@/lib/i18n";
@@ -203,6 +204,11 @@ export default function Scan() {
 
         <div className="mt-6">
           <h3 className="mb-3 text-sm font-medium uppercase tracking-wider text-stone-500">{t("scan.safetySection")}</h3>
+          {meds.length > 1 && (
+            <div className="mb-3">
+              <InteractionWarnings meds={meds} showAllClear={false} />
+            </div>
+          )}
           <div className="space-y-3">
             {meds.map((m, i) => (
               <SafetyPanel key={i} med={m} others={[...library, ...meds.filter((x) => x !== m)]} allergies={allergies} />
