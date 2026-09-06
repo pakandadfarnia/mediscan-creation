@@ -4,6 +4,7 @@ import { Pill, ShoppingCart, Leaf, Trash2, AlertTriangle, UtensilsCrossed, Alert
 import { checkAllergies } from "@/../base44/shared/allergyCheck";
 import { useLang } from "@/lib/LanguageProvider";
 import AllergyStopWarning from "@/components/med/AllergyStopWarning";
+import OtcAlternativeWarning from "@/components/med/OtcAlternativeWarning";
 
 // Per-category badge styling (color + icon + label key).
 const BADGE = {
@@ -24,9 +25,12 @@ export default function LibraryCard({ med, allergies, onRemove }) {
   // names are kept standard by the translator, so matching still works.
   const allergyFlags = allergies?.length ? checkAllergies(med, allergies) : [];
   const hasAllergy = allergyFlags.length > 0;
-  const dd = med.drug_interactions || [];
+  // OTC ↔ prescription conflicts get big warning blocks; other interactions stay
+  // in the regular amber box.
+  const otcConflicts = (med.drug_interactions || []).filter((d) => d.otc_med && d.rx_med);
+  const dd = (med.drug_interactions || []).filter((d) => !(d.otc_med && d.rx_med));
   const df = med.food_interactions || [];
-  const hasDD = dd.length > 0;
+  const hasDD = dd.length > 0 || otcConflicts.length > 0;
   const sideEffects = med.side_effects || [];
 
   // Color the card border by the most severe issue: allergy (red) > interaction (amber) > none.
@@ -95,6 +99,14 @@ export default function LibraryCard({ med, allergies, onRemove }) {
         <div className="mt-3">
           <p className="text-xs font-medium uppercase tracking-wider text-stone-500">{t("table.sideEffects")}</p>
           <p className="mt-0.5 text-sm text-stone-600">{sideEffects.join(" · ")}</p>
+        </div>
+      )}
+
+      {otcConflicts.length > 0 && (
+        <div className="mt-3 space-y-3">
+          {otcConflicts.map((d, i) => (
+            <OtcAlternativeWarning key={i} item={d} />
+          ))}
         </div>
       )}
 

@@ -43,7 +43,7 @@ export default async function(req) {
         "DO NOT translate or change these fields — return them exactly as given: name, generic_name, active_ingredients, dose, quantity, manufacturer, expiration_date, category. " +
         "Active and inactive ingredient NAMES that are standard scientific/chemical terms (e.g. acetaminophen, lactose, titanium dioxide) must be kept in their internationally recognized form, NOT translated, so they can still be matched against an allergy list. " +
         "Keep the exact same JSON structure and field names. Return only the translated object, with the same fields as the input. " +
-        "If the medication has drug_interactions or food_interactions arrays, translate only the 'description' field inside each item into " + LANG_NAME[language] + " (plain, everyday words); keep other_med, ingredient, food, and severity exactly as given.\n\n" +
+        "If the medication has drug_interactions or food_interactions arrays, translate the 'description' field inside each item, and also the 'otc_alternative' field inside any drug interaction item, into " + LANG_NAME[language] + " (plain, everyday words); keep other_med, ingredient, otc_med, rx_med, food, and severity exactly as given.\n\n" +
         "INPUT MEDICATION JSON:\n" + JSON.stringify(medication),
       // Schema mirrors the medication shape (plus the interaction arrays) so the
       // model returns a structured object we can merge field-by-field.
@@ -75,7 +75,10 @@ export default async function(req) {
                 other_med: { type: 'string' },
                 ingredient: { type: 'string' },
                 description: { type: 'string' },
-                severity: { type: 'string', enum: ['danger', 'caution'] }
+                severity: { type: 'string', enum: ['danger', 'caution'] },
+                otc_med: { type: 'string' },
+                rx_med: { type: 'string' },
+                otc_alternative: { type: 'string' }
               }
             }
           },
@@ -120,8 +123,12 @@ export default async function(req) {
       if (Array.isArray(medication[arrKey]) && Array.isArray(translated[arrKey])) {
         merged[arrKey] = medication[arrKey].map((orig, i) => {
           const tr = translated[arrKey][i];
-          if (!tr || !hadValue(tr.description)) return orig;
-          return { ...orig, description: tr.description };
+          if (!tr) return orig;
+          const updated = { ...orig };
+          if (hadValue(tr.description)) updated.description = tr.description;
+          // Also swap in a translated OTC alternative when the model returned one.
+          if (hadValue(tr.otc_alternative)) updated.otc_alternative = tr.otc_alternative;
+          return updated;
         });
       }
     }

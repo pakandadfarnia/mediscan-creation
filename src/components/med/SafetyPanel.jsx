@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { checkAllergies } from "@/../base44/shared/allergyCheck";
 import { checkDuplicates } from "@/../base44/shared/duplicateCheck";
+import OtcAlternativeWarning from "@/components/med/OtcAlternativeWarning";
 import { useLang } from "@/lib/LanguageProvider";
 import { ShieldCheck, Loader2, AlertTriangle, CheckCircle2, Ban } from "lucide-react";
 
@@ -39,6 +40,10 @@ export default function SafetyPanel({ med, others, allergies }) {
   const dupFlags = checkDuplicates(med, others);
   const dd = inter?.drug_drug || [];
   const df = inter?.drug_food || [];
+  // OTC ↔ prescription conflicts get their own big warning blocks; the
+  // remaining drug interactions render as regular warning rows below.
+  const otcConflicts = dd.filter((d) => d.otc_med && d.rx_med);
+  const plainDD = dd.filter((d) => !(d.otc_med && d.rx_med));
 
   const hasAllergy = allergyFlags.length > 0;
   // Build a single ordered list of warning rows to render (allergies first,
@@ -50,7 +55,7 @@ export default function SafetyPanel({ med, others, allergies }) {
   dupFlags.forEach((f) =>
     rows.push({ tone: "caution", label: t("safety.duplicate"), detail: t("safety.duplicateMsg", { x: f.ingredientDisplay, others: f.others.join(", ") }) })
   );
-  dd.forEach((d) =>
+  plainDD.forEach((d) =>
     rows.push({ tone: d.severity === "danger" ? "danger" : "caution", label: t("safety.drugDrug"), detail: `${t("safety.with", { med: d.other_med })}: ${d.description}` })
   );
   df.forEach((d) =>
@@ -76,12 +81,19 @@ export default function SafetyPanel({ med, others, allergies }) {
         <div className="mt-3 flex items-center gap-2 text-sm text-stone-500">
           <Loader2 className="h-4 w-4 animate-spin" /> {t("safety.checking")}
         </div>
-      ) : rows.length === 0 ? (
+      ) : rows.length === 0 && otcConflicts.length === 0 ? (
         <div className="mt-3 flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2.5 text-sm text-emerald-700">
           <CheckCircle2 className="h-4 w-4" /> {t("safety.noIssues")}
         </div>
       ) : (
         <div className="mt-3 space-y-2">
+          {otcConflicts.length > 0 && (
+            <div className="space-y-3">
+              {otcConflicts.map((d, i) => (
+                <OtcAlternativeWarning key={i} item={d} />
+              ))}
+            </div>
+          )}
           {hasAllergy && (
             <div className="flex items-start gap-2 rounded-xl bg-red-600 px-3 py-2.5 text-sm font-semibold text-white">
               <Ban className="mt-0.5 h-4 w-4 shrink-0" />

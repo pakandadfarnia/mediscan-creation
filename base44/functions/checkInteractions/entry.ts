@@ -40,7 +40,7 @@ export default async function(req) {
     // Render each medication as a one-line summary (name, generic, active
     // ingredients) so the LLM can reason about ingredient overlap.
     const medLine = (m) =>
-      `${m.name}${m.generic_name ? ` (${m.generic_name})` : ''} — active ingredients: ${(Array.isArray(m.active_ingredients) && m.active_ingredients.length ? m.active_ingredients.join(', ') : 'unknown')}`;
+      `${m.name}${m.generic_name ? ` (${m.generic_name})` : ''} — type: ${m.category || 'unknown'} — active ingredients: ${(Array.isArray(m.active_ingredients) && m.active_ingredients.length ? m.active_ingredients.join(', ') : 'unknown')}`;
 
     const targetLine = medLine(medication);
     const othersLines = safeOthers.length
@@ -59,7 +59,9 @@ export default async function(req) {
       "Rules: only flag clinically established, meaningful interactions — do not invent or speculate. " +
       "Use severity \"danger\" for serious/contraindicated/avoid-combination, \"caution\" for moderate/monitor. " +
       "Write each description in " + LANG_NAME[language] + ", using plain, everyday words a non-doctor can understand — no medical jargon. For example: 'Taking these together can raise your risk of bleeding' instead of 'increases anticoagulant effect'. " +
-      "Keep descriptions to one clear sentence. If there are none for a category, return an empty array for it.";
+      "Keep descriptions to one clear sentence. If there are none for a category, return an empty array for it. " +
+      "For drug_drug interactions between an over-the-counter (otc) medicine and a prescription medicine, also fill in otc_med (the over-the-counter one), rx_med (the prescription one), and otc_alternative: a specific, commonly available over-the-counter medicine or active ingredient that treats the same problem but is safe to take with that prescription. " +
+      "Only suggest an alternative you are clinically confident in, and write it in " + LANG_NAME[language] + ". If there is no safe over-the-counter alternative, still fill in otc_med and rx_med and leave otc_alternative as an empty string.";
 
     // Invoke the LLM with a schema that yields two arrays of interaction objects.
     const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
@@ -75,7 +77,10 @@ export default async function(req) {
                 other_med: { type: 'string', description: 'Name of the interacting medication from the list' },
                 ingredient: { type: 'string', description: 'The active ingredient involved, if applicable' },
                 severity: { type: 'string', enum: ['danger', 'caution'] },
-                description: { type: 'string' }
+                description: { type: 'string' },
+                otc_med: { type: 'string', description: 'The over-the-counter medication, when this interaction is between an OTC and a prescription medication' },
+                rx_med: { type: 'string', description: 'The prescription medication in that OTC/prescription pair' },
+                otc_alternative: { type: 'string', description: 'A safer over-the-counter medicine or ingredient that treats the same problem without clashing with the prescription' }
               },
               required: ['other_med', 'severity', 'description']
             }

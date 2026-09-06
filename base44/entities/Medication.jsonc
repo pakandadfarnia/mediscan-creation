@@ -118,6 +118,18 @@
               "danger",
               "caution"
             ]
+          },
+          "otc_med": {
+            "type": "string",
+            "description": "The over-the-counter medication, when this interaction is between an OTC and a prescription medication"
+          },
+          "rx_med": {
+            "type": "string",
+            "description": "The prescription medication in that OTC/prescription pair"
+          },
+          "otc_alternative": {
+            "type": "string",
+            "description": "A safer over-the-counter medicine or ingredient that treats the same problem without clashing with the prescription"
           }
         }
       }
