@@ -113,9 +113,9 @@ export default function LibraryCard({ med, allergies, onRemove, interactionFlags
       )}
 
       {dd.length > 0 && (
-        <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+        <div className="mt-3 rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-800">
           <div className="flex items-center gap-2 font-semibold">
-            <Pill className="h-4 w-4" /> {t("safety.drugDrug")}
+            <Pill className="h-4 w-4 text-red-600" /> {t("safety.drugDrug")}
           </div>
           <ul className="mt-1 space-y-0.5">
             {dd.map((d, i) => (
